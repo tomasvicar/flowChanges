@@ -2,63 +2,75 @@ clear all
 close all
 clc
 
-% path = 'G:\Sdílené disky\Quantitative GAČR\data\experiment_31_8_2020_phase_holo_prutok\holograf\128_20s_interval\';
-% file = dir([path '*.tiff']);
+path = 'G:\Sdílené disky\Quantitative GAČR\data\nova_krabice_pc3_beztreatmentu_hezka_data19_11_2020\';
+D = dir([path '*well*']);
 
-expNum = [1];
-expFlowSettings = {'repmat([50 50 50 50 100 100 100 100],[1,5])'};
-expCell = {'PC3'};
-expFOV = {'WELL2'};
-
-% channel and medium parameters
-nu = 0.0072; % dyn*s/cm^2 (medium 10% serum, 37°C) - (g*cm/s^2)*s/cm^2 = g/cm*s
-
-x = 0; % m - x position (left/right) in channel - 0 means centre
-h = (0.1/1000)/2; % m height
-b = (1/1000)/2; % m length
-y = -h; % m - y position (up/down) in channel - 0 means centre
-phi = 649.01/10^6/60; %l/s
+% % channel and medium parameters
+% nu = 0.0072; % dyn*s/cm^2 (medium 10% serum, 37°C) - (g*cm/s^2)*s/cm^2 = g/cm*s
+% 
+% x = 0; % m - x position (left/right) in channel - 0 means centre
+% h = (0.1/1000)/2; % m height
+% b = (1/1000)/2; % m length
+% y = -h; % m - y position (up/down) in channel - 0 means centre
+% phi = 649.01/10^6/60; %l/s
 
 %%
 % image parameters
 sample_time = 1/5; % Hz
 
 % flow settings
-k = 0.5;
-step_length = 15; % sec
-step_pause = 30; % sec
-delay_length = 30; % sec
 dyn2ulmin = 12.98; % multiplication constant for transfer of flow units
+dyn0 = 5;
 
 % segmentation and analysis parameters
-threshold = 0.2;
+threshold = 0.3;
 WeightFcn = @sum;
-areaThr = 6000; % time*pixels - sum of cell areas during time
-lowerAreaThr = 100; % px - minimal cell area
-upperAreaThr = inf; % px - maximal cell area
+volumeThr = 6000; % time*pixels - sum of cell areas during time
+areaThr = [100, inf]; % px - [minimal maximal] cell area
+Med = [3,3,5]; % size of median filter [x,y,t]
+Gauss = 0.5; % sigma of Gaussian filter
+
 
 
 % export settings
 figureSize = [50,100,1700,800];
 videoFrameStep = 1;
 upsampleFactor = 8;
+contrast = [-0.5,2];
 
 ERR = [];
-for experiment = 1:length(expNum)
+%%
+for experiment = 3%:length(D)
     disp(num2str(experiment))
     err = [];
 %     try
-    flowMeter_file = ['G:\Sdílené disky\Quantitative GAČR\data\nova_krabice_nepovedene_13_11_2020\well2_PC3wt_01\exp' num2str(expNum(experiment)) '.csv'];
-    path = ['G:\Sdílené disky\Quantitative GAČR\data\nova_krabice_nepovedene_13_11_2020\well2_PC3wt_01\'];
-    path_save = 'G:\Sdílené disky\Quantitative GAČR\data\nova_krabice_nepovedene_13_11_2020\results\';
-    frameTime_file = ['G:\Sdílené disky\Quantitative GAČR\data\nova_krabice_nepovedene_13_11_2020\well2_PC3wt_01\segmMotility.Path.csv'];
-    mkdir([path_save num2str(expNum(experiment))])
+    C = strsplit(D(experiment).name,'_');
+    expNum = str2double(C(1));
+    expCell = C(3);
+    expFOV = C(2);
+    
+    step_length = str2double(C{end}(1:2)); % sec
+    step_pause = str2double(C{end}(1:2)); % sec
+    delay_length = 60; % sec
+    
+    if contains(C{end},'mix')
+        dyn1 = str2double(C{end}(end-9:end-7));
+        dyn2 = str2double(C{end}(end-5:end-3));
+    else
+        dyn1 = str2double(C{end}(end-4:end-3));
+        dyn2 = str2double(C{end}(end-4:end-3));
+    end
+    expFlowSettings = {'repmat([dyn1 dyn1 dyn1 dyn2 dyn2 dyn2],[1,3])'}; %dyn
+    
+    flowMeter_file = [path 'flowmeter\a' num2str(expNum) '.csv'];
+    path_save = [path 'results\'];
+    frameTime_file = [path D(experiment).name '\segMotility.Path.csv'];
+    mkdir([path_save num2str(expNum)])
 
-    description = {['Exp' num2str(expNum(experiment)) ' ' expCell{experiment} ' ' expFOV{experiment}], [expFlowSettings{experiment} 'dyn/cm^2 - ' num2str(step_pause) '/' num2str(step_length) 'sec intervals']};
-    file = dir([path '*phase*']);
-%     file = file(end);
+    description = {['Exp' num2str(expNum) ' ' expCell{:} ' ' expFOV{:}], [num2str(dyn1) '/' num2str(dyn2) 'dyn/cm^2 - ' num2str(step_pause) '/' num2str(step_length) 'sec intervals']};
+    file = dir([path D(experiment).name '\*phase*']);
     frameTimes = importdata(frameTime_file);
-    dtv = datevec(datetime(frameTimes.textdata(2:end,1),'InputFormat','yyyy-dd-MM HH:mm:ss.SSS'));
+    dtv = datevec(datetime(frameTimes.textdata(2:end,1),'InputFormat','yyyy-MM-dd HH:mm:ss.SSS'));
     da = duration(dtv(:,4:end));
     frameTimes = seconds(da-da(1));
     %% import FlowMeter data
@@ -68,12 +80,7 @@ for experiment = 1:length(expNum)
     T = table(tmp(:,1),tmp(:,2)-tmp(1,2),tmp(:,3).*1000,tmp(:,4),tmp(:,5),'VariableNames',varNames);
 
     %% prepare Theoretical Pump Flow
-    if any(contains(expFlowSettings{experiment},'-'))
-        b = split(expFlowSettings{experiment},'-');
-        PumpFlow=[linspace(eval(b{1})^k,eval(b{2})^k,step_length).^(1/k)].*dyn2ulmin; % ul/min
-    else
-        PumpFlow = eval(expFlowSettings{experiment}).*dyn2ulmin; % ul/min
-    end
+    PumpFlow = eval(expFlowSettings{:}).*dyn2ulmin; % ul/min
 
     step_time=step_length/sample_time; % sec
     delay_time=delay_length/sample_time; % sec
@@ -84,6 +91,9 @@ for experiment = 1:length(expNum)
         time=[time,(1:(delay_time+step_time))+(k-1)*(delay_time+step_time)];
         FlowTheoretical=[FlowTheoretical,zeros(1,delay_time),PumpFlow(k)*ones(1,step_time)];
     end
+    
+    time = [linspace(1,60*sample_time,60*sample_time) time+60*sample_time];
+    FlowTheoretical = [ones(1,60*sample_time).*dyn0 FlowTheoretical];
 
     %% read image data
     info = imfinfo([file.folder '\' file.name]);
@@ -102,43 +112,44 @@ for experiment = 1:length(expNum)
         frameTimes(frames+1:end) = [];
     end
 
-    I = zeros(info(1).Height,info(1).Width,frames);
+    I = zeros(info(1).Height,info(1).Width,frames,'single');
     I(:,:,1) = imread([file.folder '\' file.name],1);
 
-    M = zeros(info(1).Height,info(1).Width,frames);
-    Iorig = zeros(info(1).Height,info(1).Width,frames);
+    Iorig = zeros(info(1).Height,info(1).Width,frames,'single');
     parfor i = 1:frames
         Iorig(:,:,i) = imread([file.folder '\' file.name],i);
-
-        mask = Iorig(:,:,i);
-        mask(mask<threshold) = 0;
-        mask(mask>0) = 1;
-        mask = bwareafilt(logical(mask),[lowerAreaThr upperAreaThr]);
+    end
+    
+    I = medfilt3(Iorig,Med);
+    I = imgaussfilt3(I,Gauss);
+    M = I>threshold;
+    
+    parfor i = 1:frames
+        mask = bwareafilt(M(:,:,i),areaThr);
         mask = imclearborder(mask);
-
-        I(:,:,i) = Iorig(:,:,i).*mask;
         M(:,:,i) = mask;
     end
     M = imfill(M,26,'holes');
+    M = bwareaopen(M, volumeThr);
     labels = bwlabeln(M);
 
     %% compute cell centres
     BB = regionprops3(labels,labels,'MeanIntensity','BoundingBox','Volume');
-%     labelsDelete = BB.MeanIntensity(BB.Volume<volumeThr | BB.BoundingBox(:,3)~=0.5 | BB.BoundingBox(:,6)~=frames);
-    labelsDelete = BB.MeanIntensity(BB.Volume<areaThr);
-    for LD = 1:length(labelsDelete)
-        labels(labels==labelsDelete(LD)) = 0;
-        M(labels==labelsDelete(LD)) = 0;
-        I(labels==labelsDelete(LD)) = 0;
-    end
+% %     labelsDelete = BB.MeanIntensity(BB.Volume<volumeThr | BB.BoundingBox(:,3)~=0.5 | BB.BoundingBox(:,6)~=frames);
+%     labelsDelete = BB.MeanIntensity(BB.Volume<areaThr);
+%     for LD = 1:length(labelsDelete)
+%         labels(labels==labelsDelete(LD)) = 0;
+%         M(labels==labelsDelete(LD)) = 0;
+%         I(labels==labelsDelete(LD)) = 0;
+%     end
 %     BB(BB.Volume<volumeThr | BB.BoundingBox(:,3)~=0.5 | BB.BoundingBox(:,6)~=frames,:) = [];
-    BB(BB.Volume<areaThr,:) = [];
+%     BB(BB.Volume<areaThr,:) = [];
     num_cells = height(BB);
     
-    for i = 1:num_cells
-        labels(labels==BB.MeanIntensity(i)) = i;
-        BB.MeanIntensity(i) = i;
-    end
+%     for i = 1:num_cells
+%         labels(labels==BB.MeanIntensity(i)) = i;
+%         BB.MeanIntensity(i) = i;
+%     end
     
     centres = table;
     for i = 1:length(info)
@@ -146,6 +157,7 @@ for experiment = 1:length(expNum)
         if isempty(stats)
             break
         end
+        stats(stats.Area==0,:) = [];
         tmp2 = labels(:,:,i);
         cells_slice = unique(tmp2(:)); cells_slice(1)=[];
         num_cells_slice = length(cells_slice);
@@ -165,8 +177,12 @@ for experiment = 1:length(expNum)
         cell_weight{i} = centres{cell_rows,'WeightMedian'};
         cell_area{i} = centres{cell_rows,'AreaPX'};
 
-        cell_WCdiff{i} = (cell_WC{i} - cell_WC{i}(1,:)).^2;
-        cell_WCdiff{i} = sqrt(cell_WCdiff{i}(:,1) + cell_WCdiff{i}(:,2));
+        % Euclidean distance
+%         cell_WCdiff{i} = (cell_WC{i} - cell_WC{i}(1,:)).^2;
+%         cell_WCdiff{i} = sqrt(cell_WCdiff{i}(:,1) + cell_WCdiff{i}(:,2));
+        % y distance
+        cell_WCdiff{i} = cell_WC{i} - cell_WC{i}(1,:);
+        cell_WCdiff{i} = cell_WCdiff{i}(:,2);
         cell_WCdiff_weightNorm{i} = cell_WCdiff{i}./cell_weight{i};
 
         cell_Cdiff{i} = (cell_C{i} - cell_C{i}(1,:)).^2;
@@ -198,7 +214,7 @@ for experiment = 1:length(expNum)
         legend({'Pump - Theoretical','Flowmeter - Measured','Cell Centre Difference','Cell Centre Difference - Compensated Shift'},'Location','best')
         set(gca,'FontSize',12)
         set(gca,'FontWeight','bold')
-        saveas(gcf,[path_save num2str(expNum(experiment)) '\Cell' num2str(cellNum) 'CentreDiff.png'])
+        saveas(gcf,[path_save num2str(expNum) '\Cell' num2str(cellNum) 'CentreDiff.png'])
         close(gcf)
 
         % Wight normalized
@@ -220,7 +236,7 @@ for experiment = 1:length(expNum)
         legend({'Pump - Theoretical','Flowmeter - Measured','Cell Centre Difference','Cell Centre Difference - Compensated Shift'},'Location','best')
         set(gca,'FontSize',12)
         set(gca,'FontWeight','bold')
-        saveas(gcf,[path_save num2str(expNum(experiment)) '\Cell' num2str(cellNum) 'CentreDiff_WN.png'])
+        saveas(gcf,[path_save num2str(expNum) '\Cell' num2str(cellNum) 'CentreDiff_WN.png'])
         close(gcf)
     end
 
@@ -258,7 +274,7 @@ for experiment = 1:length(expNum)
     set(gca,'FontSize',12)
     set(gca,'FontWeight','bold')
     legend(L,'Location','best')
-    saveas(gcf,[path_save num2str(expNum(experiment)) '\All_Cells_CentreDiff_WN.png'])
+    saveas(gcf,[path_save num2str(expNum) '\All_Cells_CentreDiff_WN.png'])
     close(gcf)
 
     figure('Position',figureSize);
@@ -294,7 +310,7 @@ for experiment = 1:length(expNum)
     set(gca,'FontSize',12)
     set(gca,'FontWeight','bold')
     legend(L,'Location','best')
-    saveas(gcf,[path_save num2str(expNum(experiment)) '\All_Cells_CentreDiff_WNCS.png'])
+    saveas(gcf,[path_save num2str(expNum) '\All_Cells_CentreDiff_WNCS.png'])
     close(gcf)
     %% Visualisation of Cell Area, Position and Weight Changes
     for cellNum = 1:num_cells
@@ -311,7 +327,7 @@ for experiment = 1:length(expNum)
         ylabel('Weight (pg)')
         set(gca,'FontSize',12)
         set(gca,'FontWeight','bold')
-        saveas(gcf,[path_save num2str(expNum(experiment)) '\Cell' num2str(cellNum) 'Area_Weight.png'])
+        saveas(gcf,[path_save num2str(expNum) '\Cell' num2str(cellNum) 'Area_Weight.png'])
         close(gcf)
 
         figure('Position',figureSize);
@@ -321,15 +337,15 @@ for experiment = 1:length(expNum)
         ylabel('Distance from Start (px)')
         set(gca,'FontSize',12)
         set(gca,'FontWeight','bold')
-        saveas(gcf,[path_save num2str(expNum(experiment)) '\Cell' num2str(cellNum) 'Position.png'])
+        saveas(gcf,[path_save num2str(expNum) '\Cell' num2str(cellNum) 'Position.png'])
         close(gcf)
     end
     %% Export video of Cell BB
     for cellNum = 1:num_cells
-        Ibb = Iorig(ceil(BB.BoundingBox(cellNum,2)):ceil(BB.BoundingBox(cellNum,2))+ceil(BB.BoundingBox(cellNum,5))-1,...
+        Ibb = I(ceil(BB.BoundingBox(cellNum,2)):ceil(BB.BoundingBox(cellNum,2))+ceil(BB.BoundingBox(cellNum,5))-1,...
             ceil(BB.BoundingBox(cellNum,1)):ceil(BB.BoundingBox(cellNum,1))+ceil(BB.BoundingBox(cellNum,4))-1,...
             ceil(BB.BoundingBox(cellNum,3)):ceil(BB.BoundingBox(cellNum,3))+ceil(BB.BoundingBox(cellNum,6))-1);
-        Ibb = uint8(Ibb./max(Ibb(:)).*255);
+        Ibb = uint8(mat2gray(Ibb,contrast)*255);
         Ibb = Ibb(:,:,1:videoFrameStep:end);
 
         Mbb = M(ceil(BB.BoundingBox(cellNum,2)):ceil(BB.BoundingBox(cellNum,2))+ceil(BB.BoundingBox(cellNum,5))-1,...
@@ -344,7 +360,7 @@ for experiment = 1:length(expNum)
         posC = [cell_C{cellNum}(:,1)-ceil(BB.BoundingBox(cellNum,1)),...
             cell_C{cellNum}(:,2)-ceil(BB.BoundingBox(cellNum,2))];
 
-        v = VideoWriter([path_save num2str(expNum(experiment)) '\Cell' num2str(cellNum) 'BBVideo.avi'],'MPEG-4');
+        v = VideoWriter([path_save num2str(expNum) '\Cell' num2str(cellNum) 'BBVideo.avi'],'MPEG-4');
         v.FrameRate = 50;
         v.Quality = 100;
         open(v)
