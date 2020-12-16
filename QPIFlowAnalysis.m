@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-path = 'G:\Sdílené disky\Quantitative GAČR\data\nova_krabice_pc3_beztreatmentu_hezka_data19_11_2020\';
+path = 'E:\Sdílené disky\Quantitative GAČR\data\nova_krabice_pc3_beztreatmentu_hezka_data19_11_2020\';
 info = readtable([path 'info_19_11_20.xlsx']);
 path_save = [path 'results\'];
 
@@ -29,9 +29,12 @@ for ii = 1:numel(listVars)
     opt.(listVars(ii).name) = eval(listVars(ii).name);
 end
 %% execution
-for fileNum = 2%:height(info)
+for fileNum = 8:height(info)
     disp(num2str(fileNum))
-
+    
+%     err = [];
+%     try
+        
     flowMeter_file = [path info.folder{fileNum} '\flow' num2str(info.experiment(fileNum)) '.csv'];
     frameTime_file = [path info.folder{fileNum} '\segMotility.Path.csv'];
     image_file = [path info.folder{fileNum} '\Compensated phase - [0000, 0000].tiff'];
@@ -47,6 +50,7 @@ for fileNum = 2%:height(info)
     timeFlow = eval(info.time{fileNum});
     
     pumpFlowValues = [];
+    pumpFlowTimes = [];
     for flowind = 1:length(pumpFlow)
         pumpFlowValues = [pumpFlowValues zeros(1,delayFlow(flowind))...
             pumpFlow(flowind)*ones(1,timeFlow(flowind))];
@@ -100,6 +104,7 @@ for fileNum = 2%:height(info)
         if isempty(stats)
             break
         end
+        stats(stats.Area==0,:) = [];
         tmp2 = labels(:,:,i);
         cells_slice = unique(tmp2(:)); cells_slice(1)=[];
         num_cells_slice = length(cells_slice);
@@ -200,5 +205,9 @@ for fileNum = 2%:height(info)
         num2str(info.experiment(fileNum)) 'results.mat'],...
         'cellStats','cell_WC','cell_WCdiff','cell_Height',...
         'flowmeterTimes','flowmeterValues','pumpFlowValues',...
-        'pumpFlowTimes','opt')
+        'pumpFlowTimes','imageFrameTimes','opt')
+    
+%     catch err
+%     save([path_save num2str(info.experiment(fileNum)) 'error.mat'],'err');
+%     end
 end
