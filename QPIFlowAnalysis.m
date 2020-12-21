@@ -29,7 +29,7 @@ for ii = 1:numel(listVars)
     opt.(listVars(ii).name) = eval(listVars(ii).name);
 end
 %% execution
-for fileNum = 8:height(info)
+for fileNum = 1:height(info)
     disp(num2str(fileNum))
     
 %     err = [];
@@ -128,7 +128,7 @@ for fileNum = 8:height(info)
         cell_Height{i} = cellStats{cell_rows,'CellHeight'};
     end
 
-    %% Visualisation
+    %% Visualization
     mkdir([path_save num2str(info.experiment(fileNum))])
     
     for cellNum = 1:num_cells
@@ -205,7 +205,7 @@ for fileNum = 8:height(info)
         num2str(info.experiment(fileNum)) 'results.mat'],...
         'cellStats','cell_WC','cell_WCdiff','cell_Height',...
         'flowmeterTimes','flowmeterValues','pumpFlowValues',...
-        'pumpFlowTimes','imageFrameTimes','opt')
+        'pumpFlowTimes','imageFrameTimes','opt','num_cells')
     
 %     catch err
 %     save([path_save num2str(info.experiment(fileNum)) 'error.mat'],'err');
