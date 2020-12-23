@@ -2,8 +2,8 @@ clear all
 close all
 clc
 
-path = 'E:\SdÃ­lenÃ© disky\Quantitative GAÄŒR\data\nova_krabice_pc3_beztreatmentu_hezka_data19_11_2020\';
-info = readtable([path 'info_19_11_20.xlsx']);
+path = 'E:\Sdílené disky\Quantitative GAÈR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\';
+info = readtable([path 'info_18_12_20.xlsx']);
 path_save = [path 'results\'];
 
 %% options

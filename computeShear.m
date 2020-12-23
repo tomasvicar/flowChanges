@@ -2,25 +2,24 @@ clear all
 close all
 clc
 
-path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-10 - Shearstress PC3 calA ruzne dyny\';
+path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\';
 path_save = [path 'results\'];
+load([path 'results\1\1results.mat'],'opt')
 
 %% options
-dynThr = 25*12.98;
-medSize = 12;
-pksWin = 25;
+dynThr = 10*12.98;
+medSize = 101;
+pksWin = 15;
+
+optShear.dynThr = dynThr;
+optShear.medSize = medSize;
+optShear.pksWin = pksWin;
 
 %% execution
 for fileNum = 1:height(opt.info)
     disp(num2str(fileNum))
     
-    load([path 'results\' num2str(fileNum) '\' num2str(fileNum) 'results.mat'])
-    
-    %%% odstranit - neni potreba pro nove zpracovana data
-    frameTime_file = [path opt.info.folder{fileNum} '\segMotility.Path.csv'];
-    imageFrameTimes = getImageFrameTimes(frameTime_file);
-    num_cells = length(cell_WCdiff);
-    %%%
+    load([path 'results\' num2str(opt.info.experiment(fileNum)) '\' num2str(opt.info.experiment(fileNum)) 'results.mat'])
     
     flowFiltered = medfilt1(flowmeterValues,medSize);
 
@@ -29,6 +28,7 @@ for fileNum = 1:height(opt.info)
     numEdges = length(edgeFlowTimes);
     edgeFlowDirections = repmat([1 -1],[1,numEdges/2]);
 
+    idx = zeros(1,numEdges);
     for edgeNum = 1:numEdges
         [~,idx(edgeNum)] = min(abs(imageFrameTimes-edgeFlowTimes(edgeNum)));
     end
@@ -50,6 +50,7 @@ for fileNum = 1:height(opt.info)
                 extremaPos{cellNum}(edgeNum+1) = pos+idx(edgeNum+1)-pksWin;
             end
 
+            idx2 = zeros(1,numEdges);
             for edgeNum = 1:numEdges
                 [~,idx2(edgeNum)] = min(abs(imageFrameTimes(extremaPos{cellNum}(edgeNum))-flowmeterTimes));
             end
@@ -99,7 +100,7 @@ for fileNum = 1:height(opt.info)
             Gboxplot(:,cellNum) = G{cellNum};
         end
     end
-    f = figure('Position',opt.figureSize);
+    figure('Position',opt.figureSize);
     boxplot(gca,Gboxplot)
     xlabel('Number of Cell (-)')
     ylabel('Shear Modulus G (Pa)')
@@ -109,7 +110,7 @@ for fileNum = 1:height(opt.info)
     saveas(gcf,[path_save num2str(opt.info.experiment(fileNum)) '\ShearModulus_cells.png'])
     close(gcf)
     
-    f = figure('Position',opt.figureSize);
+    figure('Position',opt.figureSize);
     histogram(gca,meanG,num_cells)
     xlabel('Shear Modulus G (Pa)')
     ylabel('Cell Count (-)')
@@ -118,4 +119,7 @@ for fileNum = 1:height(opt.info)
     set(gca,'FontWeight','bold')
     saveas(gcf,[path_save num2str(opt.info.experiment(fileNum)) '\ShearModulus.png'])
     close(gcf)
+    
+    save([path_save num2str(opt.info.experiment(fileNum)) '\'...
+        num2str(opt.info.experiment(fileNum)) 'results.mat'],'optShear','G','-append')
 end
