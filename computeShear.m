@@ -3,7 +3,9 @@ close all
 clc
 
 path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\';
-path_save = [path 'results\'];
+path_save = [path 'results_tmp/'];
+
+
 load([path 'results\1\1results.mat'],'opt')
 
 %% options
@@ -19,6 +21,10 @@ optShear.pksWin = pksWin;
 for fileNum = 1:height(opt.info)
     disp(num2str(fileNum))
     
+    if ~isfolder([path_save num2str(fileNum)])
+         mkdir([path_save  num2str(fileNum)])
+    end
+    
     load([path 'results\' num2str(opt.info.experiment(fileNum)) '\' num2str(opt.info.experiment(fileNum)) 'results.mat'])
     
     flowFiltered = medfilt1(flowmeterValues,medSize);
@@ -33,6 +39,11 @@ for fileNum = 1:height(opt.info)
         [~,idx(edgeNum)] = min(abs(imageFrameTimes-edgeFlowTimes(edgeNum)));
     end
 
+    
+    for cellNum = 1:num_cells
+        cell_WCdiff{cellNum} = cell_WCdiff{cellNum} - bg_fit_iterative_gauss(cell_WCdiff{cellNum});
+    end
+    
     meanG = nan(1,num_cells);
     stdG = nan(1,num_cells);
     G = cell(1,num_cells);
