@@ -1,83 +1,140 @@
-clear all
-close all
-clc
+clear all;close all;clc;
+addpath('utils')
 
-path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\';
-path_save = [path 'results_tmp/'];
+path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\results';
 
+path_save = path;
 
-load([path 'results\1\1results.mat'],'opt')
+load([path '/1/1results.mat'],'opt')
 
 %% options
-dynThr = 10*12.98;
-medSize = 101;
-pksWin = 15;
+minPeakHeight = 15*12.98;
+minPeakDistance = 10;
+medSize = 0.5;
+sumWin = 0.1;
+pksWin = 5;
 
-optShear.dynThr = dynThr;
+
+optShear.minPeakHeight = minPeakHeight;
+optShear.minPeakDistance = minPeakDistance;
 optShear.medSize = medSize;
+optShear.sumWin = sumWin;
 optShear.pksWin = pksWin;
 
 %% execution
 for fileNum = 1:height(opt.info)
+    
+    if ~isfolder([path_save '/' num2str(fileNum)])
+        continue
+    end
+    
     disp(num2str(fileNum))
     
-    if ~isfolder([path_save num2str(fileNum)])
-         mkdir([path_save  num2str(fileNum)])
-    end
     
-    load([path 'results\' num2str(opt.info.experiment(fileNum)) '\' num2str(opt.info.experiment(fileNum)) 'results.mat'])
+    data = load([path '\' num2str(opt.info.experiment(fileNum)) '\' num2str(opt.info.experiment(fileNum)) 'results.mat']);
+    flowmeterValues = data.flowmeterValues;
+    flowmeterTimes = data.flowmeterTimes;
+    cell_WCdiff = data.cell_WCdiff;
+    cell_Height = data.cell_Height;
+    imageFrameTimes = data.imageFrameTimes;
     
-    flowFiltered = medfilt1(flowmeterValues,medSize);
-
-    edgeFlowSamples = find(diff(flowFiltered>dynThr)~=0)';
-    edgeFlowTimes = flowmeterTimes(edgeFlowSamples);
-    numEdges = length(edgeFlowTimes);
-    edgeFlowDirections = repmat([1 -1],[1,numEdges/2]);
-
-    idx = zeros(1,numEdges);
+    
+    T_flow = mean(abs(diff(flowmeterTimes)));
+    T_img = mean(abs(diff(imageFrameTimes)));
+    
+    
+    flowmeterValues = medfilt1(flowmeterValues,odd(medSize/T_flow));
+    
+    [edgeTimes] = get_edges(flowmeterTimes,flowmeterValues,odd(sumWin/T_flow),minPeakHeight,minPeakDistance);
+    
+    
+    numEdges = length(edgeTimes);
+    imgEdgeIdx = zeros(1,numEdges);
     for edgeNum = 1:numEdges
-        [~,idx(edgeNum)] = min(abs(imageFrameTimes-edgeFlowTimes(edgeNum)));
-    end
-
-    
-    for cellNum = 1:num_cells
-        cell_WCdiff{cellNum} = cell_WCdiff{cellNum} - bg_fit_iterative_gauss(cell_WCdiff{cellNum});
+        [~,imgEdgeIdx(edgeNum)] = min(abs(imageFrameTimes-edgeTimes(edgeNum)));
     end
     
-    meanG = nan(1,num_cells);
-    stdG = nan(1,num_cells);
-    G = cell(1,num_cells);
-    extremaValue = cell(1,num_cells);
-    extremaPos = cell(1,num_cells);
+
+    
+    
+    
+    num_cells = length(cell_WCdiff);
+    shears = cell(1,num_cells);
+    dxs  = cell(1,num_cells);
+    heights  = cell(1,num_cells);
     for cellNum = 1:num_cells
-        if length(cell_WCdiff{cellNum})>idx(end)
-            for edgeNum = 1:2:numEdges
-                window = cell_WCdiff{cellNum}(idx(edgeNum)-pksWin:idx(edgeNum)+pksWin);
-                [extremaValue{cellNum}(edgeNum),pos] = min(window);
-                extremaPos{cellNum}(edgeNum) = pos+idx(edgeNum)-pksWin;
-
-                window = cell_WCdiff{cellNum}(idx(edgeNum+1)-pksWin:idx(edgeNum+1)+pksWin);
-                [extremaValue{cellNum}(edgeNum+1),pos] = max(window);
-                extremaPos{cellNum}(edgeNum+1) = pos+idx(edgeNum+1)-pksWin;
+        
+        WCdiff0 = cell_WCdiff{cellNum} ;
+        
+        bg = bg_fit_iterative_gauss(WCdiff);
+        WCdiff = WCdiff0 - bg;
+        
+        figure('Position',opt.figureSize);
+        hold on
+        plot(WCdiff0)
+        plot(bg)
+        plot(WCdiff)
+ 
+        saveas([path_save '/' num2str(fileNum) '/Cell'  num2str(cellNum)   'bg_signal_check.png']
+        
+        cell_height = cell_Height{cellNum};
+        
+        for edgeNum = 1:numEdges
+            
+            idx = imgEdgeIdx(edgeNum);
+            if idx>length(WCdiff)
+                continue
+                
             end
 
-            idx2 = zeros(1,numEdges);
-            for edgeNum = 1:numEdges
-                [~,idx2(edgeNum)] = min(abs(imageFrameTimes(extremaPos{cellNum}(edgeNum))-flowmeterTimes));
-            end
+            isMax = mod(edgeNum,2)==0;
+            [WCextremaPos,WCextremaVal] = get_window_extrema(WCdiff,idx,round(pksWin/T_img),isMax);
+            
+            [~,idx2] = min(abs(flowmeterTimes-imageFrameTimes(WCextremaPos)));
+            
+            [flowExtremaPos,flowExtremaVal] = get_window_extrema(flowmeterValues,idx2,round(pksWin/T_flow),isMax);
 
-            flowDiffExtrema = abs(flowFiltered(idx2(1:2:end)) - flowFiltered(idx2(2:2:end)))'; % ul/min
-            rCOM = abs(extremaValue{cellNum}(1:2:end) - extremaValue{cellNum}(2:2:end))/opt.px2mum; % um in flow direction only (y-axis)
-
-            flowDiffExtrema = (flowDiffExtrema/12.98)*0.1; % flow to pressure in Pa
-            G{cellNum} = (flowDiffExtrema./rCOM).*median(cell_Height{cellNum}); % shear modulus for each pulse
-            meanG(cellNum) = mean(G{cellNum}); % average shear modulus of cell
-            stdG(cellNum) = std(G{cellNum}); % standard deviation of shear modulus of cell through pulses
+            height = cell_height(WCextremaPos);
+            
+            
+            shears{cellNum}(edgeNum) = (flowExtremaVal/12.98)*0.1; %to Pa
+            dxs{cellNum}(edgeNum) = WCextremaVal;
+            heights{cellNum}(edgeNum) = height;
+            
+            
         end
     end
-
-%% visualization
+        
+    G = cell(1,num_cells);
     for cellNum = 1:num_cells
+        
+        G{cellNum} = diff(shears{cellNum})./diff(shears{cellNum}).*heights{cellNum}(1:end-1);
+
+    end
+    
+    save([path_save '/' num2str(fileNum) '/results_G.mat'],'shears','dxs','heights','G')
+    
+    
+    max_length = max(cellfun(@length,G));
+    to_table = nan(max_length+1,num_cells);
+    variable_names ={};
+    for cellNum = 1:num_cells
+        variable_names = [variable_names,['cell' num2str(cellNum)]];
+        to_table(1:length(G{cellNum}),cellNum) = 1;
+    end
+    row_names = {};
+    for k = 1:max_length
+        row_names = [row_names,['value' num2str(k)]];
+    end
+    row_names = [row_names,'num_cells_in_cluster'];
+    T = array2table(to_table,'VariableNames',variable_names,'RowNames',row_names);
+    
+    
+    writetable(T,[path_save '/' num2str(fileNum) '/table_what_use.xlsx'],'WriteRowNames',true)
+    
+    
+    
+     for cellNum = 1:num_cells
         description = {['Exp' num2str(opt.info.experiment(fileNum)) ' '...
                 opt.info.cell{fileNum} ' FOV' num2str(opt.info.fov(fileNum))],...
                 replace(opt.info.folder{fileNum},'_',' ')};
@@ -105,32 +162,12 @@ for fileNum = 1:height(opt.info)
         close(gcf)
     end
     
-    Gboxplot = nan(numEdges/2,num_cells);
-    for cellNum = 1:num_cells
-        if ~isempty(G{cellNum})
-            Gboxplot(:,cellNum) = G{cellNum};
-        end
-    end
-    figure('Position',opt.figureSize);
-    boxplot(gca,Gboxplot)
-    xlabel('Number of Cell (-)')
-    ylabel('Shear Modulus G (Pa)')
-    title(['Shear Modulus - Cells' description])
-    set(gca,'FontSize',12)
-    set(gca,'FontWeight','bold')
-    saveas(gcf,[path_save num2str(opt.info.experiment(fileNum)) '\ShearModulus_cells.png'])
-    close(gcf)
     
-    figure('Position',opt.figureSize);
-    histogram(gca,meanG,num_cells)
-    xlabel('Shear Modulus G (Pa)')
-    ylabel('Cell Count (-)')
-    title(['Shear Modulus - Total' description])
-    set(gca,'FontSize',12)
-    set(gca,'FontWeight','bold')
-    saveas(gcf,[path_save num2str(opt.info.experiment(fileNum)) '\ShearModulus.png'])
-    close(gcf)
     
-    save([path_save num2str(opt.info.experiment(fileNum)) '\'...
-        num2str(opt.info.experiment(fileNum)) 'results.mat'],'optShear','G','-append')
+    
 end
+
+
+
+
+

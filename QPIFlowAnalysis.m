@@ -1,6 +1,7 @@
 clear all
 close all
 clc
+addpath('utils')
 
 path = 'E:\Sdílené disky\Quantitative GAÈR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\';
 info = readtable([path 'info_18_12_20.xlsx']);
