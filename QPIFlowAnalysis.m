@@ -1,10 +1,17 @@
-clear all
-close all
-clc
+clear all;close all;clc;
 addpath('utils')
 
-path = 'E:\Sdílené disky\Quantitative GAÈR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\';
+path = 'G:\Sdílené disky\Quantitative GAÈR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\';
 info = readtable([path 'info_18_12_20.xlsx']);
+
+% path = 'G:\Sdílené disky\Quantitative GAÈR\data\20-12-10 - Shearstress PC3 calA ruzne dyny\';
+% info = readtable([path 'info_10_12_20.xlsx']);
+
+% path = 'G:\Sdílené disky\Quantitative GAÈR\data\nova_krabice_pc3_beztreatmentu_hezka_data19_11_2020\';
+% info = readtable([path 'info_19_11_20.xlsx']);
+
+
+
 path_save = [path 'results\'];
 
 %% options
@@ -64,6 +71,11 @@ for fileNum = 1:height(info)
     %% read image data
     %     Iorig = tiffreadVolume(image_file);
     imageSize = size(imread(image_file,1));
+    
+    if strcmp(image_file,'G:\Sdílené disky\Quantitative GAÈR\data\nova_krabice_pc3_beztreatmentu_hezka_data19_11_2020\11_well06_PC3_untreated_48hseed_20spulse_mix100-200dyn\Compensated phase - [0000, 0000].tiff')
+        imageFrameTimes = imageFrameTimes(1:2972);
+    end
+    
     frames = length(imageFrameTimes);
 
     I = zeros(imageSize(1),imageSize(2),frames,'single');

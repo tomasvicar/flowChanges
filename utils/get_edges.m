@@ -18,9 +18,12 @@ D(D<minPeakDistance/2) = NaN;
 posEdgeTimes = posEdgeTimes(assignment>0);
 negEdgeTimes = negEdgeTimes(assignment(assignment>0));
 
+
+posEdgeTimes = posEdgeTimes(assignment>0);
+negEdgeTimes = negEdgeTimes(assignment(assignment>0));
+
 edgeTimes = [];
 for k = 1:length(posEdgeTimes)
-    
     edgeTimes = [edgeTimes,posEdgeTimes(k),negEdgeTimes(k)];
 end
 
