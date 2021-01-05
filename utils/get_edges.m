@@ -1,22 +1,45 @@
-function [edgeTimes] = get_edges(flowmeterTimes,flowmeterValues,sumWin,minPeakHeight,minPeakDistance)
+function [edgeTimes] = get_edges(flowmeterTimes,flowmeterValues,sumWin,minPeakHeight,peakDistance,inint_window,peakDistanceRangePer)
+
+minPeakDistance = peakDistance*(1-peakDistanceRangePer);
+maxPeakDistance = peakDistance*(1+peakDistanceRangePer);
 
 
 
 flowDiff = padarray(diff(flowmeterValues),[1,0],'post','replicate');
 flowDiff = conv(flowDiff,ones(sumWin,1),'same');
 
-[~,posEdgeTimes] = findpeaks(flowDiff,flowmeterTimes,'MinPeakHeight',minPeakHeight,'MinPeakDistance',minPeakDistance);
-[~,negEdgeTimes] = findpeaks(-flowDiff,flowmeterTimes,'MinPeakHeight',minPeakHeight,'MinPeakDistance',minPeakDistance);
+[~,edgeTimes] = findpeaks(abs(flowDiff),flowmeterTimes,'MinPeakHeight',minPeakHeight,'MinPeakDistance',minPeakDistance);
 
 
+
+numEdges = length(edgeTimes);
+flowEdgeIdx = zeros(1,numEdges);
+for edgeNum = 1:numEdges
+    [~,flowEdgeIdx(edgeNum)] = min(abs(flowmeterTimes-edgeTimes(edgeNum)));
+end
+
+flowDiffValues = flowDiff(flowEdgeIdx);
+
+posEdgeTimes = edgeTimes(flowDiffValues>0);
+negEdgeTimes = edgeTimes(flowDiffValues<0);
+
+posEdgeTimes(posEdgeTimes<inint_window) = [];
+negEdgeTimes(negEdgeTimes<inint_window) = [];
 
 D = pdist2(posEdgeTimes,negEdgeTimes,@(x,y) x-y);
-D(D<minPeakDistance/2) = NaN;
+D(D<minPeakDistance) = NaN;
+D(D>maxPeakDistance) = NaN;
+D = abs(peakDistance-D);
+
+
 
 [assignment,~] = munkres(D);
 
 posEdgeTimes = posEdgeTimes(assignment>0);
 negEdgeTimes = negEdgeTimes(assignment(assignment>0));
+
+[posEdgeTimes,sort_vec] = sort(posEdgeTimes);
+negEdgeTimes = negEdgeTimes(sort_vec);
 
 
 edgeTimes = [];

@@ -3,7 +3,7 @@ function [extremaPos,extremaVal] = get_window_extrema(signal,idx,pksWin,isMax)
 
 
 ind = idx-pksWin:idx+pksWin;
-ind(ind<=0 | ind>length(signal))=[];
+ind(ind>length(signal)|ind<0) = [];
 window = signal(ind);
 if isMax
     [extremaVal,pos] = max(window);

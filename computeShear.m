@@ -1,33 +1,52 @@
 clear all;close all;clc;
 addpath('utils')
 
-path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\results';
+% path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\results';
+% path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-10 - Shearstress PC3 calA ruzne dyny\results';
+path = 'G:\Sdílené disky\Quantitative GAČR\data\nova_krabice_pc3_beztreatmentu_hezka_data19_11_2020\results';
 
 time = datestr(datetime('now'),'mm_dd_yy__HH_MM');
 
-path_save = [path '_bg'];
+path_save = [path '_' time];
 
-load([path '/1/1results.mat'],'opt')
+copyfile(path,path_save)
+
+
+load([path '/3/3results.mat'],'opt')
 
 
 
 
 %% options
-minPeakHeight = 15*12.98;
-minPeakDistance = 10;
-medSize = 0.5;
-sumWin = 0.1;
+minPeakHeight = 7*12.98;
+peakDistance = 20;
+peakDistanceRangePer = 0.4;
+medSize = 2;
+sumWin = 1;
 pksWin = 5;
+inint_window = 70;
 
 
 optShear.minPeakHeight = minPeakHeight;
-optShear.minPeakDistance = minPeakDistance;
+optShear.peakDistance = peakDistance;
+optShear.peakDistanceRangePer = peakDistanceRangePer;
 optShear.medSize = medSize;
 optShear.sumWin = sumWin;
 optShear.pksWin = pksWin;
+optShear.inint_window = inint_window;
 
 %% execution
-for fileNum = 12:height(opt.info)
+for fileNum = 1:height(opt.info)
+    
+%     if opt.info.experiment(fileNum)==3 || opt.info.experiment(fileNum)==4 %%%%%%%%%%%%%%%%%%%%%!!!!!!!!!!!!
+%         peakDistance = 10;
+%         
+%     else
+%         peakDistance = 20;
+%         
+%     end
+    
+    
     
     if ~isfolder([path_save '/' num2str(fileNum)])
         mkdir([path_save '/' num2str(fileNum)])
@@ -52,8 +71,9 @@ for fileNum = 12:height(opt.info)
     
     flowmeterValues = medfilt1(flowmeterValues,odd(medSize/T_flow));
     
-    [edgeTimes] = get_edges(flowmeterTimes,flowmeterValues,odd(sumWin/T_flow),minPeakHeight,minPeakDistance);
+    [edgeTimes] = get_edges(flowmeterTimes,flowmeterValues,odd(sumWin/T_flow),minPeakHeight,peakDistance,inint_window,peakDistanceRangePer);
     
+    edgeTimes(edgeTimes>(imageFrameTimes(end)-pksWin)) = [];
     
     numEdges = length(edgeTimes);
     imgEdgeIdx = zeros(1,numEdges);
@@ -64,7 +84,6 @@ for fileNum = 12:height(opt.info)
     end
     
 
-    
     
     
     num_cells = length(cell_WCdiff);
@@ -89,18 +108,18 @@ for fileNum = 12:height(opt.info)
         plot(WCdiff)
         
  
-        saveas(gcf,[path_save '/' num2str(fileNum) '/Cell'  num2str(cellNum)   'bg_signal_check.png'])
+        saveas(gcf,[path_save '/' num2str(opt.info.experiment(fileNum)) '/Cell'  num2str(cellNum)   'bg_signal_check.png'])
         close(gcf)
         
         cell_height = cell_Height{cellNum};
         
-        WCextremaPoss = nan(1,numEdges);
-        WCextremaVals = nan(1,numEdges);
-        flowExtremaPoss = nan(1,numEdges);
-        flowExtremaVals = nan(1,numEdges);
-        shears_all{cellNum} = nan(1,numEdges);
-        dxs_all{cellNum} = nan(1,numEdges);
-        heights_all{cellNum} = nan(1,numEdges);
+        WCextremaPoss = [];
+        WCextremaVals = [];
+        flowExtremaPoss = [];
+        flowExtremaVals = [];
+        shears_all{cellNum} = [];
+        dxs_all{cellNum} = [];
+        heights_all{cellNum} = [];
         
         last_edge=1;
         for edgeNum = 1:numEdges
@@ -115,22 +134,16 @@ for fileNum = 12:height(opt.info)
             isMax = mod(edgeNum,2)==0;
             [WCextremaPos,WCextremaVal] = get_window_extrema(WCdiff,idx,round(pksWin/T_img),isMax);
             
-            if last_edge>1 && WCextremaPos<=WCextremaPoss(last_edge)
-               continue 
-
-            else
-                last_edge=edgeNum;
-            end
 
             
             [flowExtremaPos,flowExtremaVal] = get_window_extrema(flowmeterValues,idx2,round(pksWin/T_flow),isMax);
 
-            height = cell_height(WCextremaPos);
+            height_ = cell_height(WCextremaPos);
             
             
             shears_all{cellNum}(edgeNum) = (flowExtremaVal/12.98)*0.1; %to Pa
             dxs_all{cellNum}(edgeNum) = WCextremaVal/opt.px2mum;
-            heights_all{cellNum}(edgeNum) = height;
+            heights_all{cellNum}(edgeNum) = height_;
             
             
             WCextremaPoss(edgeNum) = WCextremaPos;
@@ -158,11 +171,9 @@ for fileNum = 12:height(opt.info)
         Es = nan(1,numEdges_used_minus1);
         nis = nan(1,numEdges_used_minus1);
         hs = nan(1,numEdges_used_minus1);
+        
         for edgeNum = 1:numEdges_used_minus1
             
-            if isnan(WCextremaPoss(edgeNum))||isnan(WCextremaPoss(edgeNum+1))
-                continue;
-            end
             
             
             xdata = imageFrameTimes(WCextremaPoss(edgeNum):WCextremaPoss(edgeNum+1));
@@ -215,27 +226,6 @@ for fileNum = 12:height(opt.info)
         ni_all{cellNum} = nis;        
         
         
-        
-        nan_pos = isnan(WCextremaPoss);
-        WCextremaPoss = WCextremaPoss(~nan_pos);
-        WCextremaVals= WCextremaVals(~nan_pos);
-        flowExtremaPoss = flowExtremaPoss(~nan_pos);
-        flowExtremaVals = flowExtremaVals(~nan_pos);
-        
-        G_all{cellNum} = G_all{cellNum}(~nan_pos);
-        E_all{cellNum} = E_all{cellNum}(~nan_pos);
-        ni_all{cellNum} = ni_all{cellNum}(~nan_pos);
-        shears_all{cellNum} = shears_all{cellNum}(~nan_pos);
-        dxs_all{cellNum} = dxs_all{cellNum}(~nan_pos);
-        heights_all{cellNum} = heights_all{cellNum}(~nan_pos);
-        
-        
-        G_all{cellNum} = G_all{cellNum}(1:end-1);
-        E_all{cellNum} = E_all{cellNum}(1:end-1);
-        ni_all{cellNum} = ni_all{cellNum}(1:end-1);
-        shears_all{cellNum} = shears_all{cellNum}(~nan_pos);
-        dxs_all{cellNum} = dxs_all{cellNum}(~nan_pos);
-        heights_all{cellNum} = heights_all{cellNum}(~nan_pos);
         
         
         
@@ -302,7 +292,7 @@ for fileNum = 12:height(opt.info)
     end
         
     
-    save([path_save '/' num2str(fileNum) '/results_G.mat'],'shears_all','dxs_all','heights_all','G_all','E_all','ni_all','optShear')
+    save([path_save '/' num2str(opt.info.experiment(fileNum)) '/results_G.mat'],'shears_all','dxs_all','heights_all','G_all','E_all','ni_all','optShear')
     
     
     max_length = max(cellfun(@length,G_all));
@@ -320,7 +310,7 @@ for fileNum = 12:height(opt.info)
     T = array2table(to_table,'VariableNames',variable_names,'RowNames',row_names);
     
     
-    writetable(T,[path_save '/' num2str(fileNum) '/table_what_use_'  time  '.xlsx'],'WriteRowNames',true)
+    writetable(T,[path_save '/' num2str(opt.info.experiment(fileNum)) '/table_what_use.xlsx'],'WriteRowNames',true)
     
 
     
