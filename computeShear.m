@@ -27,7 +27,7 @@ optShear.sumWin = sumWin;
 optShear.pksWin = pksWin;
 
 %% execution
-for fileNum = 1:height(opt.info)
+for fileNum = 12:height(opt.info)
     
     if ~isfolder([path_save '/' num2str(fileNum)])
         mkdir([path_save '/' num2str(fileNum)])
@@ -68,9 +68,9 @@ for fileNum = 1:height(opt.info)
     
     
     num_cells = length(cell_WCdiff);
-    shears = cell(1,num_cells);
-    dxs  = cell(1,num_cells);
-    heights  = cell(1,num_cells);
+    shears_all= cell(1,num_cells);
+    dxs_all  = cell(1,num_cells);
+    heights_all  = cell(1,num_cells);
     G_all = cell(1,num_cells);
     E_all = cell(1,num_cells);
     ni_all = cell(1,num_cells);
@@ -94,11 +94,15 @@ for fileNum = 1:height(opt.info)
         
         cell_height = cell_Height{cellNum};
         
-        WCextremaPoss = [];
-        WCextremaVals = [];
-        flowExtremaPoss = [];
-        flowExtremaVals = [];
+        WCextremaPoss = nan(1,numEdges);
+        WCextremaVals = nan(1,numEdges);
+        flowExtremaPoss = nan(1,numEdges);
+        flowExtremaVals = nan(1,numEdges);
+        shears_all{cellNum} = nan(1,numEdges);
+        dxs_all{cellNum} = nan(1,numEdges);
+        heights_all{cellNum} = nan(1,numEdges);
         
+        last_edge=1;
         for edgeNum = 1:numEdges
             
             idx2 = flowEdgeIdx(edgeNum);
@@ -111,15 +115,22 @@ for fileNum = 1:height(opt.info)
             isMax = mod(edgeNum,2)==0;
             [WCextremaPos,WCextremaVal] = get_window_extrema(WCdiff,idx,round(pksWin/T_img),isMax);
             
+            if last_edge>1 && WCextremaPos<=WCextremaPoss(last_edge)
+               continue 
+
+            else
+                last_edge=edgeNum;
+            end
+
             
             [flowExtremaPos,flowExtremaVal] = get_window_extrema(flowmeterValues,idx2,round(pksWin/T_flow),isMax);
 
             height = cell_height(WCextremaPos);
             
             
-            shears{cellNum}(edgeNum) = (flowExtremaVal/12.98)*0.1; %to Pa
-            dxs{cellNum}(edgeNum) = WCextremaVal/opt.px2mum;
-            heights{cellNum}(edgeNum) = height;
+            shears_all{cellNum}(edgeNum) = (flowExtremaVal/12.98)*0.1; %to Pa
+            dxs_all{cellNum}(edgeNum) = WCextremaVal/opt.px2mum;
+            heights_all{cellNum}(edgeNum) = height;
             
             
             WCextremaPoss(edgeNum) = WCextremaPos;
@@ -129,30 +140,36 @@ for fileNum = 1:height(opt.info)
             
         end
         
-        taus = diff(shears{cellNum}); 
-        rcom = diff(dxs{cellNum}); 
+        taus = diff(shears_all{cellNum}); 
+        rcom = diff(dxs_all{cellNum}); 
         
-        G_all{cellNum} = taus./rcom.*heights{cellNum}(1:end-1);
+        G_all{cellNum} = taus./rcom.*heights_all{cellNum}(1:end-1);
         
         
-        lams = []; % E/n
-        As = []; % stress/E
-        shifts_x =[];
-        shifts_y =[];
-        eqs = {};
-        xs = {};
-        Es=[];
-        nis=[];
-        hs =[];
-        for edgeNum = 1:numEdges-1
+        
+        numEdges_used_minus1 = length(G_all{cellNum});
+        
+        lams = nan(1,numEdges_used_minus1); % E/n
+        As = nan(1,numEdges_used_minus1); % stress/E
+        shifts_x = nan(1,numEdges_used_minus1);
+        shifts_y = nan(1,numEdges_used_minus1);
+        eqs = num2cell(nan(1,numEdges_used_minus1));
+        xs = num2cell(nan(1,numEdges_used_minus1));
+        Es = nan(1,numEdges_used_minus1);
+        nis = nan(1,numEdges_used_minus1);
+        hs = nan(1,numEdges_used_minus1);
+        for edgeNum = 1:numEdges_used_minus1
             
+            if isnan(WCextremaPoss(edgeNum))||isnan(WCextremaPoss(edgeNum+1))
+                continue;
+            end
             
             
             xdata = imageFrameTimes(WCextremaPoss(edgeNum):WCextremaPoss(edgeNum+1));
             shift_x = xdata(1);
             xdata = xdata - shift_x;
             
-            h = heights{cellNum}(edgeNum);
+            h = heights_all{cellNum}(edgeNum);
             ydata = (WCdiff(WCextremaPoss(edgeNum):WCextremaPoss(edgeNum+1))/opt.px2mum)/h;
             
             
@@ -180,22 +197,47 @@ for fileNum = 1:height(opt.info)
             A = f.A;
             lam = f.lam;
             
-            lams = [lams lam]; % E/n
-            As = [As A];
-            shifts_x =[shifts_x,shift_x];
-            shifts_y =[shifts_y,shift_y];
-            eqs = [eqs,eq];
-            xs = [xs,x];
+            lams(edgeNum) = lam; % E/n
+            As(edgeNum) = A;
+            shifts_x(edgeNum) = shift_x;
+            shifts_y(edgeNum) = shift_y;
+            eqs{edgeNum} = eq;
+            xs{edgeNum} = x;
             
             E = abs(taus(edgeNum))/A;
-            Es=[Es,E];
+            Es(edgeNum)=E;
             ni = E/lam;
-            nis=[nis,ni];
-            hs = [hs h];
+            nis(edgeNum)= ni;
+            hs(edgeNum) = h;
         end
         
         E_all{cellNum} = Es;
         ni_all{cellNum} = nis;        
+        
+        
+        
+        nan_pos = isnan(WCextremaPoss);
+        WCextremaPoss = WCextremaPoss(~nan_pos);
+        WCextremaVals= WCextremaVals(~nan_pos);
+        flowExtremaPoss = flowExtremaPoss(~nan_pos);
+        flowExtremaVals = flowExtremaVals(~nan_pos);
+        
+        G_all{cellNum} = G_all{cellNum}(~nan_pos);
+        E_all{cellNum} = E_all{cellNum}(~nan_pos);
+        ni_all{cellNum} = ni_all{cellNum}(~nan_pos);
+        shears_all{cellNum} = shears_all{cellNum}(~nan_pos);
+        dxs_all{cellNum} = dxs_all{cellNum}(~nan_pos);
+        heights_all{cellNum} = heights_all{cellNum}(~nan_pos);
+        
+        
+        G_all{cellNum} = G_all{cellNum}(1:end-1);
+        E_all{cellNum} = E_all{cellNum}(1:end-1);
+        ni_all{cellNum} = ni_all{cellNum}(1:end-1);
+        shears_all{cellNum} = shears_all{cellNum}(~nan_pos);
+        dxs_all{cellNum} = dxs_all{cellNum}(~nan_pos);
+        heights_all{cellNum} = heights_all{cellNum}(~nan_pos);
+        
+        
         
         description = {['Exp' num2str(opt.info.experiment(fileNum)) ' '...
             opt.info.cell{fileNum} ' FOV' num2str(opt.info.fov(fileNum))],...
@@ -215,7 +257,7 @@ for fileNum = 1:height(opt.info)
         hold on
         plot(imageFrameTimes(WCextremaPoss),WCextremaVals/opt.px2mum,'go')
         
-        for edgeNum = 1:numEdges-1
+        for edgeNum = 1:numEdges_used_minus1
             lam = lams(edgeNum); 
             A = As(edgeNum);
             shift_x = shifts_x(edgeNum);
@@ -223,12 +265,15 @@ for fileNum = 1:height(opt.info)
             eq = eqs{edgeNum};
             x = xs{edgeNum};
             h = hs(edgeNum);
-            
-            tmp = (eval(eq)+shift_y)*h;
-            plot(x+shift_x,tmp ,'-','Color',[1 0.5 0])
-            
+
+            if ~isnan(eq)
+                tmp = (eval(eq)+shift_y)*h;
+                plot(x+shift_x,tmp ,'-','Color',[1 0.5 0])
+            end
             
         end
+        
+        
         
 
         text( imageFrameTimes(WCextremaPoss(1:end-1))' + diff(imageFrameTimes(WCextremaPoss))'/3 ,...
@@ -257,15 +302,15 @@ for fileNum = 1:height(opt.info)
     end
         
     
-    save([path_save '/' num2str(fileNum) '/results_G.mat'],'shears','dxs','heights','G','optShear')
+    save([path_save '/' num2str(fileNum) '/results_G.mat'],'shears_all','dxs_all','heights_all','G_all','E_all','ni_all','optShear')
     
     
-    max_length = max(cellfun(@length,G));
+    max_length = max(cellfun(@length,G_all));
     to_table = nan(max_length+1,num_cells);
     variable_names ={};
     for cellNum = 1:num_cells
         variable_names = [variable_names,['cell' num2str(cellNum)]];
-        to_table(1:length(G{cellNum}),cellNum) = 1;
+        to_table(1:length(G_all{cellNum}),cellNum) = 1;
     end
     row_names = {};
     for k = 1:max_length
