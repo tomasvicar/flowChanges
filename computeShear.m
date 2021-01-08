@@ -1,13 +1,14 @@
 clear all;close all;clc;
 addpath('utils')
 
-% path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\results';
+path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\results';
 % path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-10 - Shearstress PC3 calA ruzne dyny\results';
-path = 'G:\Sdílené disky\Quantitative GAČR\data\nova_krabice_pc3_beztreatmentu_hezka_data19_11_2020\results';
+% path = 'G:\Sdílené disky\Quantitative GAČR\data\nova_krabice_pc3_beztreatmentu_hezka_data19_11_2020\results';
 
 time = datestr(datetime('now'),'mm_dd_yy__HH_MM');
 
 path_save = [path '_' time];
+% path_save = [path '_with_eps'];
 
 copyfile(path,path_save)
 
