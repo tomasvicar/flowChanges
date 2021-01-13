@@ -130,150 +130,16 @@ for file_num = 1:size(file_names,1)
     
 end
 
- 
-cluster_var = '';
-value_var = 'time';
-dep = 'Gs';
+figure()
+hold on
 
 
-
-
-y_label = dep;
-save_name = 'tmp';
-ylims = '';
-xlims = '';
-x_label = '';
-
-% 
-% save_name = '22Rv1_vs_PC3_G';
-% y_label = 'Shear modulus (Pa)';
-% ylims = [0,250];
-% xlims = [0 3000];
-
-
-% save_name = '22Rv1_vs_PC3_ni';
-% y_label = 'Viscosity (Pa s)';
-% xlims = [0.6 2.4];
-
-
-save_name = 'caliculin_time';
-y_label = 'Shear modulus (Pa)';
-ylims = [0,250];
-xlims = [-200 1500];
-
-
-
-cluster_vals = {};
-value_vals = [];
-dep_vals = [];
 for ind = 1:length(resutls)
+
+    times = resutls(ind).time;
+    Gs = resutls(ind).Gs;
     
-    use = ones(size(resutls(ind).shears))>0;
-    
-    
-%     use = abs(resutls(ind).shears-10)<5;
-    
-%     if ~strcmp(resutls(ind).fov,'fov1')
-%         continue
-%     end
-%     if ~strcmp(resutls(ind).cell_type,'PC3')
-%         continue
-%     end
-%     if ~strcmp(resutls(ind).experiment,'exp1')
-%         continue
-%     end
-    
-    
-    tmp1 = resutls(ind).(dep);
-    tmp1 = tmp1(use);
-    if value_var
-        tmp2 = resutls(ind).(value_var);
-        tmp2 = tmp2(use);
-    end
-    
-     
-    if value_var
-        dep_vals = [dep_vals,tmp1];
-        value_vals = [value_vals,tmp2];
-        
-    else
-        dep_vals = [dep_vals,median(tmp1)];
-        
-    end
-    
-    if cluster_var
-        tmp= resutls(ind).(cluster_var);
-    else
-        tmp = 'xxx';
-          
-    end
-    if value_var
-        tmp = repmat({tmp},[1,length(resutls(ind).(dep))]);
-        
-    end
-    
-    
-    cluster_vals = [cluster_vals,tmp];
+    plot(times,Gs)
     
 
 end
-
-figureSize = [50,100,1700,800];
-figure('Position',figureSize);
-hold on;
-
-if value_var
-    uu = unique(cluster_vals);
-    
-    for u = uu
-        if iscell(u)
-            u = u{1};
-        end
-        if isstring(u)||ischar(u)
-            cluster_bin = cellfun(@(x) strcmp(x,u),cluster_vals);
-        else
-            cluster_bin = cellfun(@(x) x==u,cluster_vals);
-        end
-        plot(value_vals(cluster_bin),dep_vals(cluster_bin),'.')
-%         boxplot_special(value_vals(cluster_bin),dep_vals(cluster_bin))
-    end
-    legend(uu,'Location','best')
-    xlabel(value_var)
-    ylabel(y_label)
-else
-
-    
-    boxplot_special(cluster_vals,dep_vals)
-    ylabel(y_label)
-    
-
-end
-
-
-if x_label
-    xlabel(x_label)
-end
-
-set(gca,'FontSize',12)
-set(gca,'FontWeight','bold')
-set(gca,'linewidth',2)
-
-    
-if ~isempty(xlims)
-    xlim(xlims)
-end
-if ~isempty(ylims)
-    ylim(ylims)
-end
-
-drawnow;
-
-if save_name
-    print_png_eps_svg(['../' save_name])
-end
-
-
-
-
-
-
