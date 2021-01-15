@@ -130,7 +130,7 @@ end
  
 cluster_var = 'experiment';
 value_var = '';
-dep = 'nis';
+dep = 'hs';
 
 
 
@@ -145,7 +145,7 @@ x_label = '';
 save_name = 'adherence_time_ni';
 % y_label = 'Shear modulus (Pa)';
 % ylims = [0,500];
-ylims = [0,2000];
+% ylims = [0,2000];
 % xlims = [0 3000];
 x_label = 'Adherence time';
 
