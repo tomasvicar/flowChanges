@@ -46,6 +46,3 @@ hold on;
 plot(gamma)
 tmp = (custom_shift(conv(tau,h(b,tt_h), 'same' ),b(3))*0.1-b(4));
 plot(tmp)
-
-
-
