@@ -5,7 +5,7 @@ addpath('utils')
 
 
 
-for edgeNum = 1:2:8 
+for edgeNum = 1:2:13
 load('real_data.mat')
 
 gamma = WCdiff/opt.px2mum/h;
