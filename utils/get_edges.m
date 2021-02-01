@@ -1,4 +1,4 @@
-function [edgeTimes] = get_edges(flowmeterTimes,flowmeterValues,sumWin,minPeakHeight,peakDistance,inint_window,peakDistanceRangePer)
+function [edgePos] = get_edges(flowmeterTimes,flowmeterValues,sumWin,minPeakHeight,peakDistance,inint_window,peakDistanceRangePer,T_period,pksWin)
 
 minPeakDistance = peakDistance*(1-peakDistanceRangePer);
 maxPeakDistance = peakDistance*(1+peakDistanceRangePer);
@@ -46,6 +46,10 @@ edgeTimes = [];
 for k = 1:length(posEdgeTimes)
     edgeTimes = [edgeTimes,posEdgeTimes(k),negEdgeTimes(k)];
 end
+
+edgeTimes(edgeTimes>(flowmeterTimes(end)-pksWin)) = [];
+
+edgePos = round(edgeTimes/T_period +1);
 
 
 end

@@ -1,8 +1,12 @@
 clear all;close all;clc;
 addpath('utils')
 
-path = 'G:\Sdílené disky\Quantitative GAÈR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\';
-info = readtable([path 'info_18_12_20.xlsx']);
+path = 'G:\Sdílené disky\Quantitative GAÈR\data\21-01-28 - Shear stress 14h vs 1week PC3 untreated\';
+info = readtable([path 'info_28_01_21.xlsx']);
+
+
+% path = 'G:\Sdílené disky\Quantitative GAÈR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\';
+% info = readtable([path 'info_18_12_20.xlsx']);
 
 % path = 'G:\Sdílené disky\Quantitative GAÈR\data\20-12-10 - Shearstress PC3 calA ruzne dyny\';
 % info = readtable([path 'info_10_12_20.xlsx']);
@@ -12,7 +16,7 @@ info = readtable([path 'info_18_12_20.xlsx']);
 
 
 
-path_save = [path 'results\'];
+path_save = [path 'results_1\'];
 
 %% options
 % segmentation and analysis parameters
@@ -21,7 +25,7 @@ volumeThr = 6000; % time*pixels - sum of cell areas during time
 areaThr = [100, inf]; % px - [minimal maximal] cell area
 minFrameFrac = 0.6; % relative of total frames
 WeightFcn = @median; % method of cell weight
-Med = [3,3,5]; % size of median filter [x,y,t]
+Med = [3,3,7]; % size of median filter [x,y,t]
 Gauss = 0.5; % sigma of Gaussian filter
 
 % export settings
@@ -37,21 +41,32 @@ for ii = 1:numel(listVars)
     opt.(listVars(ii).name) = eval(listVars(ii).name);
 end
 %% execution
-for fileNum = 1:height(info)
+for fileNum = 21:23
     disp(num2str(fileNum))
     
 %     err = [];
 %     try
         
     flowMeter_file = [path info.folder{fileNum} '\flow' num2str(info.experiment(fileNum)) '.csv'];
-    frameTime_file = [path info.folder{fileNum} '\segMotility.Path.csv'];
+    
     image_file = [path info.folder{fileNum} '\Compensated phase - [0000, 0000].tiff'];
     
-    imageFrameTimes = getImageFrameTimes(frameTime_file);
+    tmp1 = [path info.folder{fileNum} '\segMotility.Path.csv'];
+    tmp2 = [path info.folder{fileNum} '\time.txt'];
+    if isfile(tmp1)
+        imageFrameTimes = getImageFrameTimes(tmp1);
+    elseif isfile(tmp2)
+        imageFrameTimes = getImageFrameTimes2(tmp2);
+    else
+        error('no time file')
+    end
+        
+    
     
     flowmeterData = getFlowmeterData(flowMeter_file);
     flowmeterTimes = flowmeterData.RelativeTime;
     flowmeterValues = flowmeterData.FlowLinearized;
+    
     %% prepare Theoretical Pump Flow
     pumpFlow = eval(info.flow{fileNum});
     delayFlow = eval(info.delay{fileNum});
@@ -79,24 +94,33 @@ for fileNum = 1:height(info)
     frames = length(imageFrameTimes);
 
     I = zeros(imageSize(1),imageSize(2),frames,'single');
+    fprintf(1,'Img loading:\n')
+    fprintf(1,'%s\n\n',repmat('.',1,frames));
     parfor frame = 1:frames
         I(:,:,frame) = imread(image_file,frame);
+        fprintf(1,'\b|\n');
     end
+    fprintf(1,'\n loading finished')
     
     %% image filtering and segmentation
+    fprintf(1,'\n filters')
     I = medfilt3(I,Med);
     I = imgaussfilt3(I,Gauss);
     Mask = I>threshold;
     
+    fprintf(1,'\n mask filtering 2D')
     parfor i = 1:frames
         mask = bwareafilt(Mask(:,:,i),areaThr);
         mask = imclearborder(mask);
         Mask(:,:,i) = mask;
     end
+    
+    fprintf(1,'\n mask filtering 3D')
     Mask = imfill(Mask,26,'holes');
     Mask = bwareaopen(Mask, volumeThr);
     labels = bwlabeln(Mask);
     
+    fprintf(1,'\n bb')
     % nechutna filtrace
     BB = regionprops3(labels,labels,'MeanIntensity','BoundingBox','Volume');
     invalidIdx = BB.MeanIntensity(BB.BoundingBox(:,6) < minFrameFrac*frames |...
@@ -111,6 +135,7 @@ for fileNum = 1:height(info)
     num_cells = height(BB);
 
     %% compute cell centres
+    fprintf(1,'\n shear stress')
     cellStats = table;
     for i = 1:frames
         stats = regionprops('table',labels(:,:,i),I(:,:,i),'Centroid','WeightedCentroid','PixelValues','Area');
@@ -130,6 +155,8 @@ for fileNum = 1:height(info)
     end
 
     %% compute centre differencies
+    fprintf(1,'\n visualisation')
+    
     cell_WC = cell(1,num_cells);
     cell_WCdiff = cell(1,num_cells);
     cell_Height = cell(1,num_cells);
@@ -193,9 +220,11 @@ for fileNum = 1:height(info)
         Ibb = uint8(mat2gray(Ibb,contrast)*255);
         Ibb = Ibb(:,:,1:videoFrameStep:end);
 
-        Mbb = Mask(ceil(BB.BoundingBox(cellNum,2)):ceil(BB.BoundingBox(cellNum,2))+ceil(BB.BoundingBox(cellNum,5))-1,...
+        
+       
+        Mbb = labels(ceil(BB.BoundingBox(cellNum,2)):ceil(BB.BoundingBox(cellNum,2))+ceil(BB.BoundingBox(cellNum,5))-1,...
             ceil(BB.BoundingBox(cellNum,1)):ceil(BB.BoundingBox(cellNum,1))+ceil(BB.BoundingBox(cellNum,4))-1,...
-            ceil(BB.BoundingBox(cellNum,3)):ceil(BB.BoundingBox(cellNum,3))+ceil(BB.BoundingBox(cellNum,6))-1);
+            ceil(BB.BoundingBox(cellNum,3)):ceil(BB.BoundingBox(cellNum,3))+ceil(BB.BoundingBox(cellNum,6))-1)==cellNum;
         Mbb = uint8(double(Mbb).*255);
         Mbb = Mbb(:,:,1:videoFrameStep:end);
 
