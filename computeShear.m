@@ -23,7 +23,7 @@ load([path '/3/3results.mat'],'opt')
 
 
 %% options
-minPeakHeight = 7*12.98;
+minPeakHeight = 7*0.1;
 peakDistance = 20;
 peakDistanceRangePer = 0.4;
 medSize = 2;
@@ -44,7 +44,7 @@ optShear.T_period = T_period;
 
 
 %% execution
-for fileNum = 21:23
+for fileNum = [1:14 18:23]
     
 
     
@@ -77,7 +77,6 @@ for fileNum = 21:23
     
     [edgePos] = get_edges(time,tau,odd(sumWin/T_period),minPeakHeight,peakDistance,inint_window,peakDistanceRangePer,T_period,pksWin);
     
-    
     num_cells = length(cell_WCdiff);
     
     gammas = {};
@@ -109,7 +108,7 @@ for fileNum = 21:23
     end
     
     
-    save(['data_hard_soft_syringe/' opt.info.folder{fileNum}  '_signals.mat'],'optShear','gammas','taus','times')    
+    save(['data_hard_soft_syringe/' opt.info.folder{fileNum}  '_signals.mat'],'optShear','gammas','taus','times','edgePos')    
     
     
 
