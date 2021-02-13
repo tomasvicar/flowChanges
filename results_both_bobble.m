@@ -53,6 +53,9 @@ remove= [];
 
 % remove= [remove find(cellfun(@(x) contains(x,'05_WP'),group))];
 % remove= [remove find(cellfun(@(x) contains(x,'06_WP'),group))];
+% remove= [remove find(cellfun(@(x) contains(x,'07_WP'),group))];
+% remove= [remove find(cellfun(@(x) contains(x,'08_WP'),group))];
+% remove= [remove find(cellfun(@(x) contains(x,'09_WP'),group))];
 
 bubble = cellfun(@(x) contains(x,'bubble'),group)  ;
 group(bubble)={'w/ bubble fit'} ;
@@ -105,7 +108,7 @@ for file_num = 1:length(file_names)
 %     nis_all = [nis_all,median(res.nis)];
 %     group = [group,name];
 end
-remove= [];
+% remove= [];
 
 % group(1:6)={'hard'}  ;
 % group(7:end)={'soft'}  ;
@@ -166,7 +169,7 @@ for file_num = 1:length(file_names)
 %     nis_all = [nis_all,median(res.nis)];
 %     group = [group,name];
 end
-remove= [];
+% remove= [];
 
 % group(1:6)={'hard'}  ;
 % group(7:end)={'soft'}  ;
