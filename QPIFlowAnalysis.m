@@ -1,6 +1,11 @@
 clear all;close all;clc;
 addpath('utils')
 
+% path = 'G:\Sdílené disky\Quantitative GAÈR\data\21-02-04 - Shearstress 22Rv1 + PC3-50rez 48h\';
+% info = readtable([path 'info_04_02_21.xlsx']);
+
+
+
 path = 'G:\Sdílené disky\Quantitative GAÈR\data\21-01-28 - Shear stress 14h vs 1week PC3 untreated\';
 info = readtable([path 'info_28_01_21.xlsx']);
 
@@ -41,7 +46,7 @@ for ii = 1:numel(listVars)
     opt.(listVars(ii).name) = eval(listVars(ii).name);
 end
 %% execution
-for fileNum = 21:23
+for fileNum = 15:17
     disp(num2str(fileNum))
     
 %     err = [];

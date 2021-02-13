@@ -2,7 +2,7 @@ clear all;close all;clc;
 addpath('utils')
 
 
-path = 'G:\Sdílené disky\Quantitative GAČR\data\21-01-28 - Shear stress 14h vs 1week PC3 untreated\results_1';
+path = 'G:\Sdílené disky\Quantitative GAČR\data\21-02-04 - Shearstress 22Rv1 + PC3-50rez 48h\results_1';
 
 
 % path = 'G:\Sdílené disky\Quantitative GAČR\data\20-12-18 PC3 vs 22Rv1_4days_post_seeding\results';
@@ -16,8 +16,9 @@ path = 'G:\Sdílené disky\Quantitative GAČR\data\21-01-28 - Shear stress 14h v
 
 % copyfile(path,path_save)
 
-mkdir('data_hard_soft_syringe')
-load([path '/3/3results.mat'],'opt')
+save_folder = 'data_bubble';
+mkdir(save_folder)
+load([path '/5/5results.mat'],'opt')
 
 
 
@@ -44,7 +45,7 @@ optShear.T_period = T_period;
 
 
 %% execution
-for fileNum = [1:14 18:23]
+for fileNum = [5:14]%[1:14 18:23]
     
 
     
@@ -108,7 +109,7 @@ for fileNum = [1:14 18:23]
     end
     
     
-    save(['data_hard_soft_syringe/' opt.info.folder{fileNum}  '_signals.mat'],'optShear','gammas','taus','times','edgePos')    
+    save([ save_folder '/' opt.info.folder{fileNum}  '_signals.mat'],'optShear','gammas','taus','times','edgePos')    
     
     
 

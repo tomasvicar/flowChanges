@@ -2,7 +2,7 @@ clc;clear all;close all force;
 addpath('utils')
 addpath('utils/plotSpread')
 
-file_names = subdir('data_hard_soft_syringe/*_signals.mat');
+file_names = subdir('data_bubble/*_signals.mat');
 
 % file_names = file_names([1:11]);
 
@@ -36,18 +36,21 @@ for file_num = 1:length(file_names)
 end
 remove= [];
 
-% group(1:6)={'hard'}  ;
-% group(7:end)={'soft'}  ;
-% remove= [remove 4];
+
+% 
+remove= [remove find(cellfun(@(x) contains(x,'05_WP'),group))];
+% remove= [remove find(cellfun(@(x) contains(x,'06_WP'),group))];
+% remove= [remove find(cellfun(@(x) contains(x,'09_WP'),group))];
+
+% bubble = cellfun(@(x) contains(x,'bubble'),group)  ;
+% group(bubble)={'w/ bubble minmax'} ;
+% group(~bubble)={'w/o bubble minmax'} ;
 
 
-group(1:107)={'hard'}  ;
-group(108:end)={'soft'}  ;
 
-remove= [remove 66:78];
-% remove =  [remove 167:194];
 % remove =  [remove find(nis_all<20|nis_all>400)];
 % remove =  [remove find(Gs_all<12|Gs_all>80)];
+
 Gs_all(remove) =[];
 nis_all(remove) =[];
 group(remove) =[];
