@@ -43,18 +43,22 @@ for file_num = 1:length(file_names)
 end
 remove= [];
 
-% group(1:6)={'hard'}  ;
-% group(7:end)={'soft'}  ;
-% remove= [remove 4];
+
+remove= [remove find(cellfun(@(x) contains(x,'9_WP'),group))];
+remove= [remove find(cellfun(@(x) contains(x,'12_WP'),group))];
+remove= [remove find(cellfun(@(x) contains(x,'18_WP'),group))];
+remove= [remove find(cellfun(@(x) contains(x,'21_WP'),group))];
+
+remove =  [remove find(nis_all<10)];
+remove =  [remove find(Gs_all<8)];
+
+soft = cellfun(@(x) contains(x,'20mlBraunSyringe'),group)  ;
+group(soft)={'soft_fit'} ;
+group(~soft)={'hard_fit'} ;
 
 
-group(1:107)={'hard_fit'}  ;
-group(108:end)={'soft_fit'}  ;
 
-remove= [remove 66:78];
-% remove =  [remove 167:194];
-% remove =  [remove find(nis_all<20|nis_all>400)];
-% remove =  [remove find(Gs_all<12|Gs_all>80)];
+
 Gs_all(remove) =[];
 nis_all(remove) =[];
 group(remove) =[];
@@ -99,25 +103,32 @@ for file_num = 1:length(file_names)
 end
 remove= [];
 
-% group(1:6)={'hard'}  ;
-% group(7:end)={'soft'}  ;
-% remove= [remove 4];
+
+remove= [remove find(cellfun(@(x) contains(x,'9_WP'),group))];
+remove= [remove find(cellfun(@(x) contains(x,'12_WP'),group))];
+remove= [remove find(cellfun(@(x) contains(x,'18_WP'),group))];
+remove= [remove find(cellfun(@(x) contains(x,'21_WP'),group))];
 
 
-group(1:107)={'hard_deconv'}  ;
-group(108:end)={'soft_deconv'}   ;
+remove =  [remove find(nis_all<10)];
+remove =  [remove find(Gs_all<8)];
 
-remove= [remove 66:78];
-% remove =  [remove 167:194];
-% remove =  [remove find(nis_all<20|nis_all>400)];
-% remove =  [remove find(Gs_all<12|Gs_all>80)];
+
+
+soft = cellfun(@(x) contains(x,'20mlBraunSyringe'),group)  ;
+group(soft)={'soft_deconv'} ;
+group(~soft)={'hard_deconv'} ;
+
+
+
+
 Gs_all(remove) =[];
 nis_all(remove) =[];
 group(remove) =[];
 
 
 
-
+[h,p] = ttest2(Gs_all(strcmp(group,'hard_deconv')),Gs_all(strcmp(group,'soft_deconv')));
 
 
 GGG = [GGG,Gs_all];
@@ -159,18 +170,25 @@ for file_num = 1:length(file_names)
 end
 remove= [];
 
-% group(1:6)={'hard'}  ;
-% group(7:end)={'soft'}  ;
-% remove= [remove 4];
+remove= [remove find(cellfun(@(x) contains(x,'9_WP'),group))];
+remove= [remove find(cellfun(@(x) contains(x,'12_WP'),group))];
+remove= [remove find(cellfun(@(x) contains(x,'18_WP'),group))];
+remove= [remove find(cellfun(@(x) contains(x,'21_WP'),group))];
 
 
-group(1:107)={'hard_minmax'}  ;
-group(108:end)={'soft_minmax'}   ;
+% remove =  [remove find(nis_all<10)];
+remove =  [remove find(Gs_all<8)];
 
-remove= [remove 66:78];
-% remove =  [remove 167:194];
-% remove =  [remove find(nis_all<20|nis_all>400)];
-% remove =  [remove find(Gs_all<12|Gs_all>80)];
+soft = cellfun(@(x) contains(x,'20mlBraunSyringe'),group)  ;
+group(soft)={'soft_minmax'} ;
+group(~soft)={'hard_minmax'} ;
+
+
+
+
+
+
+
 Gs_all(remove) =[];
 % nis_all(remove) =[];
 group(remove) =[];
@@ -195,17 +213,22 @@ figure;
 boxplot_special(groupp_G,GGG)
 ylabel('G')
 xtickangle(-45)
+ylim([0,150])
 % [h,p] = ttest2(Gs_all(strcmp(group,'hard')),Gs_all(strcmp(group,'soft')));
 % title(['p=' num2str(p)]);
+
+print_png_eps_svg_fig('res/boxplot_soft_hard_G')
+
 
 figure;
 boxplot_special(groupp_ni,nnn)
 ylabel('ni')
 xtickangle(-45)
+ylim([0,750])
 % [h,p] = ttest2(nis_all(strcmp(group,'hard')),nis_all(strcmp(group,'soft')));
 % title(['p=' num2str(p)]);
 
-
+print_png_eps_svg_fig('res/boxplot_soft_hard_ni')
 
 
 

@@ -28,7 +28,7 @@ for file_num = 1:length(file_names)
         tt_h = tt_h(:);
         
         
-        use = (65)/T_period:(65+8*20)/T_period; % 5 Pa
+        use = (65-10)/T_period:(65+8*20-2)/T_period; % 5 Pa
 %         use = (65+5*20)/T_period:(65+14*20)/T_period; % 10 Pa
         use(use>length(tau)) = [];
 %         tau = tau(use);
@@ -108,22 +108,25 @@ for file_num = 1:length(file_names)
         hold off;
         title([num2str(G) '   ' num2str(ni)])
         hold on;
-        plot(gamma)
         tmp = pred(b);
-        plot(tmp)
+        plot(0:T_period:(length(tmp)-1)*T_period,gamma)
+        plot(0:T_period:(length(tmp)-1)*T_period,tmp)
+        plot(0:T_period:(length(tmp)-1)*T_period,polyval(coeffvalues(fit(ttt,(gamma - conv(crop_sig(custom_shift(tau,b(3)),use),h(b,tt_h), 'valid' )*T_period),['poly' num2str(order)],'Robust','LAR')),ttt))
+%         plot(0:T_period:(length(tmp)-1)*T_period,polyval(coeffvalues(fit(ttt,(gamma - conv(crop_sig(custom_shift(tau,b(3)),use),h(b,tt_h), 'valid' )*T_period),['poly' num2str(order)],'Robust','LAR')),ttt))
         drawnow;
         mkdir('../results_polynom_5Pa')
         
         [filepath,name,ext] = fileparts(file_name);
-        print(['../results_polynom_5Pa/' name num2str(cell_num,'%03.f')],'-dpng')
+        print_png_eps_svg_fig(['../results_polynom_5Pa/' name num2str(cell_num,'%03.f')])
         
         
-        figure();
-        hold on;
-        plot(gamma)
-        plot(polyval(coeffvalues(fit(ttt,(gamma - conv(crop_sig(custom_shift(tau,b(3)),use),h(b,tt_h), 'valid' )*T_period),['poly' num2str(order)],'Robust','LAR')),ttt))
-        
-        drawnow;
+%         figure();
+%         hold on;
+%         plot(gamma)
+%         plot(polyval(coeffvalues(fit(ttt,(gamma - conv(crop_sig(custom_shift(tau,b(3)),use),h(b,tt_h), 'valid' )*T_period),['poly' num2str(order)],'Robust','LAR')),ttt))
+%         
+%         
+%         drawnow;
     end
     
     
