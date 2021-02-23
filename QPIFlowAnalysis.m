@@ -86,7 +86,7 @@ for ii = 1:numel(listVars)
     opt.(listVars(ii).name) = eval(listVars(ii).name);
 end
 %% execution
-for fileNum = 5:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for fileNum = 9:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     disp(num2str(fileNum))
     
 %     err = [];
@@ -132,7 +132,7 @@ for fileNum = 5:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %     Iorig = tiffreadVolume(image_file);
     imageSize = size(imread(image_file,1));
     
-    if strcmp(image_file,'G:\Sdílené disky\Quantitative GAÈR\data\nova_krabice_pc3_beztreatmentu_hezka_data19_11_2020\11_well06_PC3_untreated_48hseed_20spulse_mix100-200dyn\Compensated phase - [0000, 0000].tiff')
+    if strcmp(image_file,'Z:\999992-nanobiomed\Holograf\20-11-19 - Shearstress PC3 various dyn time\11_well06_PC3_untreated_48hseed_20spulse_mix100-200dyn\Compensated phase - [0000, 0000].tiff')
         imageFrameTimes = imageFrameTimes(1:2972);
     end
     
