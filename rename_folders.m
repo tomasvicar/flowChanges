@@ -11,7 +11,7 @@ info = readtable([path 'info_04_02_21.xlsx']);
 flow_folder = [path 'exp_04_02_21'];
 
 paths =[paths path];
-infos = [infos info];
+infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
 
@@ -20,7 +20,7 @@ info = readtable([path 'info_28_01_21.xlsx']);
 flow_folder = [path 'exp_28_01_21'];
 
 paths =[paths path];
-infos = [infos info];
+infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
 
@@ -30,7 +30,7 @@ info = readtable([path 'info_26_01_21.xlsx']);
 flow_folder = [path 'exp_26_01_21'];
 
 paths =[paths path];
-infos = [infos info];
+infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
 
@@ -39,7 +39,7 @@ info = readtable([path 'info_05_02_21.xlsx']);
 flow_folder = [path 'exp_05_02_21'];
 
 paths =[paths path];
-infos = [infos info];
+infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
 
@@ -48,7 +48,7 @@ info = readtable([path 'info_29_01_21.xlsx']);
 flow_folder = [path 'exp_29_01_21'];
 
 paths =[paths path];
-infos = [infos info];
+infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
 path = 'Z:\999992-nanobiomed\Holograf\21-01-27 - Shear stress vzestupny 22Rv1 PC3\';
@@ -56,7 +56,7 @@ info = readtable([path 'info_27_01_21.xlsx']);
 flow_folder = [path 'exp_27_01_21'];
 
 paths =[paths path];
-infos = [infos info];
+infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
 
@@ -65,7 +65,7 @@ info = readtable([path 'info_10_12_20.xlsx']);
 flow_folder = [path 'exp_10_12_20'];
 
 paths =[paths path];
-infos = [infos info];
+infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
 path = 'Z:\999992-nanobiomed\Holograf\20-12-18 PC3 vs 22Rv1_4days_post_seeding\';
@@ -73,7 +73,7 @@ info = readtable([path 'info_18_12_20.xlsx']);
 flow_folder = [path 'exp_18_12_20'];
 
 paths =[paths path];
-infos = [infos info];
+infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
 path = 'Z:\999992-nanobiomed\Holograf\20-11-19 - Shearstress PC3 various dyn time\';
@@ -81,7 +81,7 @@ info = readtable([path 'info_19_11_20.xlsx']);
 flow_folder = [path 'exp_19_11_20'];
 
 paths =[paths path];
-infos = [infos info];
+infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
 

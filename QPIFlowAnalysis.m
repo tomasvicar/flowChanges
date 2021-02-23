@@ -86,7 +86,7 @@ for ii = 1:numel(listVars)
     opt.(listVars(ii).name) = eval(listVars(ii).name);
 end
 %% execution
-for fileNum = 9:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     disp(num2str(fileNum))
     
 %     err = [];
@@ -214,7 +214,7 @@ for fileNum = 9:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 
     %% Visualization
-    mkdir([path_save num2str(info.experiment(fileNum))])
+    mkdir([path_save info.folder{fileNum}])
     
     for cellNum = 1:num_cells
         description = {['Exp' num2str(info.experiment(fileNum)) ' '...
@@ -238,7 +238,7 @@ for fileNum = 9:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         legend({'Pump','Flowmeter','Centre Diff.'},'Location','northwest')
         set(gca,'FontSize',12)
         set(gca,'FontWeight','bold')
-        saveas(gcf,[path_save num2str(info.experiment(fileNum)) '\Cell' num2str(cellNum) 'CentreDiff.png'])
+        saveas(gcf,[path_save info.folder{fileNum} '\Cell' num2str(cellNum) 'CentreDiff.png'])
         close(gcf)
     end
 
@@ -254,7 +254,7 @@ for fileNum = 9:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     set(gca,'FontSize',12)
     set(gca,'FontWeight','bold')
     legend(L,'Location','best')
-    saveas(gcf,[path_save num2str(info.experiment(fileNum)) '\All_Cells_CentreDiff.png'])
+    saveas(gcf,[path_save info.folder{fileNum} '\All_Cells_CentreDiff.png'])
     close(gcf)
 
     %% Export video of Cell BB
@@ -276,7 +276,7 @@ for fileNum = 9:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         posWC = [cell_WC{cellNum}(:,1)-ceil(BB.BoundingBox(cellNum,1)),...
             cell_WC{cellNum}(:,2)-ceil(BB.BoundingBox(cellNum,2))];
 
-        v = VideoWriter([path_save num2str(info.experiment(fileNum)) '\Cell' num2str(cellNum) 'BBVideo.avi'],'MPEG-4');
+        v = VideoWriter([path_save info.folder{fileNum} '\Cell' num2str(cellNum) 'BBVideo.avi'],'MPEG-4');
         v.FrameRate = videoFrameRate;
         v.Quality = 100;
         open(v)
@@ -288,8 +288,8 @@ for fileNum = 9:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         close(v)
     end
     
-    save([path_save num2str(info.experiment(fileNum)) '\'...
-        num2str(info.experiment(fileNum)) 'results.mat'],...
+    save([path_save info.folder{fileNum} '\'...
+        'results.mat'],...
         'cellStats','cell_WC','cell_WCdiff','cell_Height',...
         'flowmeterTimes','flowmeterValues','pumpFlowValues',...
         'pumpFlowTimes','imageFrameTimes','opt','num_cells')
