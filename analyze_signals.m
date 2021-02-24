@@ -2,8 +2,8 @@ clear all;close all;clc;
 addpath('utils')
 
 
-% data_folder = 'Z:\999992-nanobiomed\Holograf\data_shear_stress_2021';
-data_folder = 'G:\Sdílené disky\Quantitative GAČR\data';
+data_folder = 'Z:\999992-nanobiomed\Holograf\data_shear_stress_2021';
+% data_folder = 'G:\Sdílené disky\Quantitative GAČR\data';
 
 
 paths = {};
@@ -19,75 +19,75 @@ paths =[paths path];
 infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
-%
-% path = [data_folder '\21-01-28 - Shear stress 14h vs 1week PC3 untreated\'];
-% info = readtable([path 'info_28_01_21.xlsx']);
-% flow_folder = [path 'exp_28_01_21'];
-%
-% paths =[paths path];
-% infos = [infos {info}];
-% flow_folders = [flow_folders flow_folder];
-%
-%
-%
-% path =  [data_folder '\21-01-26 - Shearstress 24h-4h PC3\'];
-% info = readtable([path 'info_26_01_21.xlsx']);
-% flow_folder = [path 'exp_26_01_21'];
-%
-% paths =[paths path];
-% infos = [infos {info}];
-% flow_folders = [flow_folders flow_folder];
-%
-%
-% path = [data_folder '\21-02-05 - Shearstress PC3 docetax 200nM 24h cytD 1uM\'];
-% info = readtable([path 'info_05_02_21.xlsx']);
-% flow_folder = [path 'exp_05_02_21'];
-%
-% paths =[paths path];
-% infos = [infos {info}];
-% flow_folders = [flow_folders flow_folder];
-%
-%
-% path = [data_folder '\21-01-29 - Shearsress CytD 10um 4h vs untreated PC3 48h pos seed\'];
-% info = readtable([path 'info_29_01_21.xlsx']);
-% flow_folder = [path 'exp_29_01_21'];
-%
-% paths =[paths path];
-% infos = [infos {info}];
-% flow_folders = [flow_folders flow_folder];
-%
-% path = [data_folder '\21-01-27 - Shear stress vzestupny 22Rv1 PC3\'];
-% info = readtable([path 'info_27_01_21.xlsx']);
-% flow_folder = [path 'exp_27_01_21'];
-%
-% paths =[paths path];
-% infos = [infos {info}];
-% flow_folders = [flow_folders flow_folder];
-%
-%
-% path = [data_folder '\20-12-10 - Shearstress PC3 calA ruzne dyny\'];
-% info = readtable([path 'info_10_12_20.xlsx']);
-% flow_folder = [path 'exp_10_12_20'];
-%
-% paths =[paths path];
-% infos = [infos {info}];
-% flow_folders = [flow_folders flow_folder];
-%
-% path = [data_folder '\20-12-18 PC3 vs 22Rv1_4days_post_seeding\'];
-% info = readtable([path 'info_18_12_20.xlsx']);
-% flow_folder = [path 'exp_18_12_20'];
-%
-% paths =[paths path];
-% infos = [infos {info}];
-% flow_folders = [flow_folders flow_folder];
-%
-% path = [data_folder '\20-11-19 - Shearstress PC3 various dyn time\'];
-% info = readtable([path 'info_19_11_20.xlsx']);
-% flow_folder = [path 'exp_19_11_20'];
-%
-% paths =[paths path];
-% infos = [infos {info}];
-% flow_folders = [flow_folders flow_folder];
+
+path = [data_folder '\21-01-28 - Shear stress 14h vs 1week PC3 untreated\'];
+info = readtable([path 'info_28_01_21.xlsx']);
+flow_folder = [path 'exp_28_01_21'];
+
+paths =[paths path];
+infos = [infos {info}];
+flow_folders = [flow_folders flow_folder];
+
+
+
+path =  [data_folder '\21-01-26 - Shearstress 24h-4h PC3\'];
+info = readtable([path 'info_26_01_21.xlsx']);
+flow_folder = [path 'exp_26_01_21'];
+
+paths =[paths path];
+infos = [infos {info}];
+flow_folders = [flow_folders flow_folder];
+
+
+path = [data_folder '\21-02-05 - Shearstress PC3 docetax 200nM 24h cytD 1uM\'];
+info = readtable([path 'info_05_02_21.xlsx']);
+flow_folder = [path 'exp_05_02_21'];
+
+paths =[paths path];
+infos = [infos {info}];
+flow_folders = [flow_folders flow_folder];
+
+
+path = [data_folder '\21-01-29 - Shearsress CytD 10um 4h vs untreated PC3 48h pos seed\'];
+info = readtable([path 'info_29_01_21.xlsx']);
+flow_folder = [path 'exp_29_01_21'];
+
+paths =[paths path];
+infos = [infos {info}];
+flow_folders = [flow_folders flow_folder];
+
+path = [data_folder '\21-01-27 - Shear stress vzestupny 22Rv1 PC3\'];
+info = readtable([path 'info_27_01_21.xlsx']);
+flow_folder = [path 'exp_27_01_21'];
+
+paths =[paths path];
+infos = [infos {info}];
+flow_folders = [flow_folders flow_folder];
+
+
+path = [data_folder '\20-12-10 - Shearstress PC3 calA ruzne dyny\'];
+info = readtable([path 'info_10_12_20.xlsx']);
+flow_folder = [path 'exp_10_12_20'];
+
+paths =[paths path];
+infos = [infos {info}];
+flow_folders = [flow_folders flow_folder];
+
+path = [data_folder '\20-12-18 PC3 vs 22Rv1_4days_post_seeding\'];
+info = readtable([path 'info_18_12_20.xlsx']);
+flow_folder = [path 'exp_18_12_20'];
+
+paths =[paths path];
+infos = [infos {info}];
+flow_folders = [flow_folders flow_folder];
+
+path = [data_folder '\20-11-19 - Shearstress PC3 various dyn time\'];
+info = readtable([path 'info_19_11_20.xlsx']);
+flow_folder = [path 'exp_19_11_20'];
+
+paths =[paths path];
+infos = [infos {info}];
+flow_folders = [flow_folders flow_folder];
 
 
 
@@ -235,10 +235,10 @@ for main_folder_num = 1:length(paths)
             taus = diff(flowExtremaVals); 
             
             
-            Gs = [];
-            etas = [];
-            params1 = {};
-            params2 = {};
+            Gs = zeros(1,length(edgePos)-1);
+            etas = zeros(1,length(edgePos)-1);
+            params1 = cell(1,length(edgePos)-1);
+            params2 = cell(1,length(edgePos)-1);
             
             for edgeNum  = 1:length(edgePos)-1
                 xdata = time(WCextremaPoss(edgeNum):WCextremaPoss(edgeNum+1));
@@ -261,24 +261,24 @@ for main_folder_num = 1:length(paths)
                 ft = fittype(eq,'options',fo,'coefficients',{'A','lam','shift_y'});
                 f = fit( xdata, ydata, ft);
 
-
-                x = xdata;
                 A = f.A;
                 lam = f.lam;
                 shift_y = f.shift_y;
                 
                 para2 = struct(); 
-                para2.shift_y = shift_y;
                 para2.eq = eq;
+                para2.shift_x = shift_x;
+                para2.xdata = xdata;
+                para2.ydata = ydata;
                 
-                params1 = [params1,f];
-                params2 = [params2,para2];
+                params1{edgeNum} = {f};
+                params2{edgeNum}= para2;
 
                 G = abs(taus(edgeNum))/A;
                 
                 
-                Gs = [Gs,G];
-                etas = [etas, G/lam];
+                Gs(edgeNum) = G;
+                etas(edgeNum) = G/lam;
             
             
             end
@@ -316,36 +316,40 @@ for main_folder_num = 1:length(paths)
             drawnow;
             
             
-            for edgeNum = 1:numEdges_used_minus1
-                lam = lams(edgeNum); 
-                A = As(edgeNum);
-                shift_x = shifts_x(edgeNum);
-                shift_y = shifts_y(edgeNum);
-                eq = eqs{edgeNum};
-                x = xs{edgeNum};
-                h = hs(edgeNum);
-
-                if ~isnan(eq)
-                    tmp = (eval(eq)+shift_y)*h;
-                    plot(x+shift_x,tmp ,'-','Color',[1 0.5 0])
+            for edgeNum = 1:length(edgePos)-1
+                
+                f = params1{edgeNum}{1};
+                para2 = params2{edgeNum};
+                
+                A = f.A;
+                lam = f.lam;
+                shift_y = f.shift_y;
+                
+                eq = para2.eq;
+                shift_x = para2.shift_x;
+                xdata = para2.xdata;
+                ydata = para2.ydata;
+              
+                if ~isempty(eq)
+                    tmp = eq(A,lam,shift_y,xdata);
+                    plot(xdata+shift_x,tmp ,'-','Color',[1 0.5 0])
                 end
 
             end
 
 
 
+            text( time(WCextremaPoss(1:end-1))' + diff(time(WCextremaPoss))'/3 ,...
+                 WCextremaVals(1:end-1) + diff(WCextremaVals)/2,...
+                 strsplit(num2str(Gs,'%66666.1f')))
 
-            text( imageFrameTimes(WCextremaPoss(1:end-1))' + diff(imageFrameTimes(WCextremaPoss))'/3 ,...
-                 WCextremaVals(1:end-1)/opt.px2mum + diff(WCextremaVals/opt.px2mum)/2,...
-                 strsplit(num2str(G_all{cellNum},'%66666.1f')))
+            text( time(WCextremaPoss(1:end-1))' + diff(time(WCextremaPoss))'/3 ,...
+                 WCextremaVals(1:end-1) + diff(WCextremaVals)/4*3,...
+                 strsplit(num2str(etas,'%66666.1f')),'Color',[1 .5 0])
 
-            text( imageFrameTimes(WCextremaPoss(1:end-1))' + diff(imageFrameTimes(WCextremaPoss))'/3 ,...
-                 WCextremaVals(1:end-1)/opt.px2mum + diff(WCextremaVals/opt.px2mum)/4*3,...
-                 strsplit(num2str(E_all{cellNum},'%66666.1f')),'Color',[1 .5 0])
-
-            text( imageFrameTimes(WCextremaPoss(1:end-1))' + diff(imageFrameTimes(WCextremaPoss))'/3 ,...
-                 WCextremaVals(1:end-1)/opt.px2mum + diff(WCextremaVals/opt.px2mum)/4,...
-                 strsplit(num2str(1:length(G_all{cellNum}),'%66666.1f')),'Color','red')
+            text( time(WCextremaPoss(1:end-1))' + diff(time(WCextremaPoss))'/3 ,...
+                 WCextremaVals(1:end-1) + diff(WCextremaVals)/4,...
+                 strsplit(num2str(1:length(Gs),'%66666.1f')),'Color','red')
 
             title([['Flow/Centre Static Points - Cell ' num2str(cellNum)] description])
             xlabel('Time (sec)')
@@ -354,19 +358,19 @@ for main_folder_num = 1:length(paths)
             set(gca,'FontSize',12)
             set(gca,'FontWeight','bold')
     %         saveas(gcf,[path_save '/' num2str(opt.info.experiment(fileNum)) '/Cell' num2str(cellNum) 'rCOM.eps'],'epsc')
-            saveas(gcf,[path_save '/' num2str(opt.info.experiment(fileNum)) '/Cell' num2str(cellNum) 'rCOM.png'])
+            saveas(gcf,[path_save '/'  info.folder{fileNum} '/Cell' num2str(cellNum) 'rCOM.png'])
             close(gcf)
 
 
         end
 
 
-        max_length = max(cellfun(@length,G_all));
-        to_table = nan(max_length+1,num_cells);
+        max_length = max(cellfun(@length,Gs_all));
+        to_table = ones(max_length+1,num_cells);
         variable_names ={};
         for cellNum = 1:num_cells
             variable_names = [variable_names,['cell' num2str(cellNum)]];
-            to_table(1:length(G_all{cellNum}),cellNum) = 1;
+            to_table(1:length(Gs_all{cellNum}),cellNum) = 1;
         end
         row_names = {};
         for k = 1:max_length
@@ -376,13 +380,12 @@ for main_folder_num = 1:length(paths)
         T = array2table(to_table,'VariableNames',variable_names,'RowNames',row_names);
 
 
-        writetable(T,[path_save '/' num2str(opt.info.experiment(fileNum)) '/table_what_use.xlsx'],'WriteRowNames',true)
+        writetable(T,[path_save '/' info.folder{fileNum} '/table_what_use.xlsx'],'WriteRowNames',true)
         
         save([ path_save '/' info.folder{fileNum} '/signals.mat'],'optShear','gamma_signals','tau_signals','times','edgePos')
         
         save([ path_save '/' info.folder{fileNum} '/fit_params.mat'],'taus_all','hs_all','Gs_all','etas_all','optShear')
-    
-        break
+
+        drawnow;
     end
-    break
 end
