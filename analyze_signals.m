@@ -3,7 +3,7 @@ addpath('utils')
 
 
 data_folder = 'Z:\999992-nanobiomed\Holograf\data_shear_stress_2021';
-% data_folder = 'G:\Sdílené disky\Quantitative GAČR\data';
+% data_folder = 'G:\Sdílené disky\Quantitative GAČR\data\data_shear_stress_2021';
 
 
 paths = {};
@@ -181,6 +181,8 @@ for main_folder_num = 1:length(paths)
         hs_all  = cell(1,num_cells);
         Gs_all = cell(1,num_cells);
         etas_all = cell(1,num_cells);
+        Gs_minmax_all = cell(1,num_cells);
+        edgePos_cells = cell(1,num_cells);
         
         for cellNum = 1:num_cells
             
@@ -189,9 +191,6 @@ for main_folder_num = 1:length(paths)
             
             gamma_signal_tmp = interp1(imageFrameTimes(1:length(WCdiff)),WCdiff,time_all)/opt.px2mum/median(cell_height);
             
-            if sum(isnan(gamma_signal_tmp))
-                drawnow;
-            end
             
             use = 1:find(~isnan(gamma_signal_tmp),1,'last');
             gamma_signal = gamma_signal_tmp(use);
@@ -199,10 +198,13 @@ for main_folder_num = 1:length(paths)
             tau_signal = tau_signal_all(use);
             pump_signal = pump_signal_all(use);
             
+            edgePos_cell = edgePos;
+            edgePos_cell(edgePos_cell>length(time)) = [];
+            
             gamma_signals = [gamma_signals gamma_signal];
             tau_signals = [tau_signals tau_signal];
             times = [times time];
-            
+            edgePos_cells = [edgePos_cells edgePos_cell];
             
             
             gamma_signal0 = gamma_signal;
@@ -215,10 +217,13 @@ for main_folder_num = 1:length(paths)
             flowExtremaPoss = [];
             flowExtremaVals = [];
             
-            for edgeNum  = 1:length(edgePos)
+            for edgeNum  = 1:length(edgePos_cell)
             
                 
-                idx = edgePos(edgeNum);
+                idx = edgePos_cell(edgeNum);
+                if (idx>length(gamma_signal))||(idx>length(tau_signal))
+                    continue
+                end
 
                 isMax = mod(edgeNum,2)==0;
                 [WCextremaPos,WCextremaVal] = get_window_extrema(gamma_signal,idx,round(pksWin/T_period),isMax);
@@ -233,14 +238,16 @@ for main_folder_num = 1:length(paths)
             end
             
             taus = diff(flowExtremaVals); 
+            dif_gamma = diff(WCextremaVals);
             
+            Gs_minmax = (taus./dif_gamma);
             
-            Gs = zeros(1,length(edgePos)-1);
-            etas = zeros(1,length(edgePos)-1);
-            params1 = cell(1,length(edgePos)-1);
-            params2 = cell(1,length(edgePos)-1);
+            Gs = zeros(1,length(edgePos_cell)-1);
+            etas = zeros(1,length(edgePos_cell)-1);
+            params1 = cell(1,length(edgePos_cell)-1);
+            params2 = cell(1,length(edgePos_cell)-1);
             
-            for edgeNum  = 1:length(edgePos)-1
+            for edgeNum  = 1:length(edgePos_cell)-1
                 xdata = time(WCextremaPoss(edgeNum):WCextremaPoss(edgeNum+1));
                 shift_x = xdata(1);
                 xdata = xdata - shift_x;
@@ -289,7 +296,7 @@ for main_folder_num = 1:length(paths)
             Gs_all{cellNum} = Gs ;
             etas_all{cellNum} = etas;
             
-            
+            Gs_minmax_all{cellNum} = Gs_minmax;
             
             
             description = {['Exp' num2str(opt.info.experiment(fileNum)) ' '...
@@ -302,7 +309,7 @@ for main_folder_num = 1:length(paths)
             yyaxis left
             plot(time,tau_signal)
             hold on
-            plot(time(edgePos),tau_signal(edgePos),'ro')
+            plot(time(edgePos_cell),tau_signal(edgePos_cell),'ro')
             plot(time(flowExtremaPoss),tau_signal(flowExtremaPoss),'mo')
             
             ylabel('Shear stress (Pa)')
@@ -316,7 +323,7 @@ for main_folder_num = 1:length(paths)
             drawnow;
             
             
-            for edgeNum = 1:length(edgePos)-1
+            for edgeNum = 1:length(edgePos_cell)-1
                 
                 f = params1{edgeNum}{1};
                 para2 = params2{edgeNum};
@@ -382,7 +389,7 @@ for main_folder_num = 1:length(paths)
 
         writetable(T,[path_save '/' info.folder{fileNum} '/table_what_use.xlsx'],'WriteRowNames',true)
         
-        save([ path_save '/' info.folder{fileNum} '/signals.mat'],'optShear','gamma_signals','tau_signals','times','edgePos')
+        save([ path_save '/' info.folder{fileNum} '/signals.mat'],'optShear','gamma_signals','tau_signals','times','edgePos_cells')
         
         save([ path_save '/' info.folder{fileNum} '/fit_params.mat'],'taus_all','hs_all','Gs_all','etas_all','optShear')
 
