@@ -114,7 +114,7 @@ optShear.T_period = T_period;
 
 
 
-for main_folder_num = 1:length(paths)
+for main_folder_num = 6:length(paths)
     
     path =paths{main_folder_num};
     info = infos{main_folder_num};
@@ -167,9 +167,16 @@ for main_folder_num = 1:length(paths)
         pump_signal_all = interp1(pumpFlowTimes,pumpFlowValues,time_all)/12.98*0.1; %to Pa;
          
 
-        
-        [edgePos] = get_edges(time_all,tau_signal_all,odd(sumWin/T_period),minPeakHeight,peakDistance,inint_window,peakDistanceRangePer,T_period,pksWin);
-        
+        if (peakDistance>max(time_all))  %%problem for short signals
+            edgePos = [];
+        else
+            if isempty(time_all)
+                edgePos = [];
+            else
+                [edgePos] = get_edges(time_all,tau_signal_all,odd(sumWin/T_period),minPeakHeight,peakDistance,...
+                    inint_window,peakDistanceRangePer,T_period,pksWin);
+            end
+        end
         num_cells = length(cell_WCdiff);
         
         gamma_signals = {};
@@ -208,7 +215,11 @@ for main_folder_num = 1:length(paths)
             
             
             gamma_signal0 = gamma_signal;
-            bg = bg_fit_iterative_polynom(time,gamma_signal0);
+            if length(time)>20 %%problem for short signals
+                bg = bg_fit_iterative_polynom(time,gamma_signal0);
+            else
+                bg = zeros(size(gamma_signal0));
+            end
             gamma_signal = gamma_signal0 - bg;
             
 
@@ -313,7 +324,9 @@ for main_folder_num = 1:length(paths)
             plot(time(flowExtremaPoss),tau_signal(flowExtremaPoss),'mo')
             
             ylabel('Shear stress (Pa)')
-            ylim([-1 max(pump_signal)+2])
+            if ~isempty(pump_signal)
+                ylim([-1 max(pump_signal)+2])
+            end
 
             yyaxis right
             plot(time,gamma_signal)
@@ -384,8 +397,14 @@ for main_folder_num = 1:length(paths)
             row_names = [row_names,['value' num2str(k)]];
         end
         row_names = [row_names,'num_cells_in_cluster'];
-        T = array2table(to_table,'VariableNames',variable_names,'RowNames',row_names);
-
+        
+        if isempty(to_table)
+            T = table();
+        else
+            T = array2table(to_table,'VariableNames',variable_names,'RowNames',row_names);
+        end
+        
+        
 
         writetable(T,[path_save '/' info.folder{fileNum} '/table_what_use.xlsx'],'WriteRowNames',true)
         

@@ -26,6 +26,10 @@ negEdgeTimes = edgeTimes(flowDiffValues<0);
 posEdgeTimes(posEdgeTimes<inint_window) = [];
 negEdgeTimes(negEdgeTimes<inint_window) = [];
 
+if isempty(posEdgeTimes)||isempty(negEdgeTimes)
+    edgePos =[];
+    return
+end
 D = pdist2(posEdgeTimes,negEdgeTimes,@(x,y) x-y);
 D(D<minPeakDistance) = NaN;
 D(D>maxPeakDistance) = NaN;
