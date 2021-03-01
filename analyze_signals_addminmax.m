@@ -253,157 +253,18 @@ for main_folder_num = 1:length(paths)
             
             Gs_minmax = (taus./dif_gamma);
             
-            Gs = zeros(1,length(edgePos_cell)-1);
-            etas = zeros(1,length(edgePos_cell)-1);
-            params1 = cell(1,length(edgePos_cell)-1);
-            params2 = cell(1,length(edgePos_cell)-1);
-            
-            for edgeNum  = 1:length(edgePos_cell)-1
-                xdata = time(WCextremaPoss(edgeNum):WCextremaPoss(edgeNum+1));
-                shift_x = xdata(1);
-                xdata = xdata - shift_x;
 
-                ydata = gamma_signal(WCextremaPoss(edgeNum):WCextremaPoss(edgeNum+1));
-
-                if mod(edgeNum,2)
-                    eq = @(A,lam,shift_y,x) A*(1-exp(-lam*x))+shift_y;
-                else
-                    eq = @(A,lam,shift_y,x) A*exp(-lam*x)+shift_y;
-                end
-
-                fo = fitoptions('Method','NonlinearLeastSquares',...
-                   'Robust','Bisquare',...
-                   'Lower',[0,0,0],...
-                   'Upper',[Inf,Inf,Inf],...
-                   'StartPoint',[1 1 1]);
-                ft = fittype(eq,'options',fo,'coefficients',{'A','lam','shift_y'});
-                f = fit( xdata, ydata, ft);
-
-                A = f.A;
-                lam = f.lam;
-                shift_y = f.shift_y;
-                
-                para2 = struct(); 
-                para2.eq = eq;
-                para2.shift_x = shift_x;
-                para2.xdata = xdata;
-                para2.ydata = ydata;
-                
-                params1{edgeNum} = {f};
-                params2{edgeNum}= para2;
-
-                G = abs(taus(edgeNum))/A;
-                
-                
-                Gs(edgeNum) = G;
-                etas(edgeNum) = G/lam;
             
             
-            end
-            
-            
-            taus_all{cellNum} = taus;
-            hs_all{cellNum}  = median(cell_height);
-            Gs_all{cellNum} = Gs ;
-            etas_all{cellNum} = etas;
             
             Gs_minmax_all{cellNum} = Gs_minmax;
             
             
-            description = {['Exp' num2str(opt.info.experiment(fileNum)) ' '...
-                opt.info.cell{fileNum} ' FOV' num2str(opt.info.fov(fileNum))],...
-                replace(opt.info.folder{fileNum},'_',' ')};
-
             
-            
-            figure('Position',opt.figureSize);
-            yyaxis left
-            plot(time,tau_signal)
-            hold on
-            plot(time(edgePos_cell),tau_signal(edgePos_cell),'ro')
-            plot(time(flowExtremaPoss),tau_signal(flowExtremaPoss),'mo')
-            
-            ylabel('Shear stress (Pa)')
-            if ~isempty(pump_signal)
-                ylim([-1 max(pump_signal)+2])
-            end
-
-            yyaxis right
-            plot(time,gamma_signal)
-            hold on
-            plot(time(WCextremaPoss),gamma_signal(WCextremaPoss),'go')
-
-            drawnow;
-            
-            
-            for edgeNum = 1:length(edgePos_cell)-1
-                
-                f = params1{edgeNum}{1};
-                para2 = params2{edgeNum};
-                
-                A = f.A;
-                lam = f.lam;
-                shift_y = f.shift_y;
-                
-                eq = para2.eq;
-                shift_x = para2.shift_x;
-                xdata = para2.xdata;
-                ydata = para2.ydata;
-              
-                if ~isempty(eq)
-                    tmp = eq(A,lam,shift_y,xdata);
-                    plot(xdata+shift_x,tmp ,'-','Color',[1 0.5 0])
-                end
-
-            end
-
-
-
-            text( time(WCextremaPoss(1:end-1))' + diff(time(WCextremaPoss))'/3 ,...
-                 WCextremaVals(1:end-1) + diff(WCextremaVals)/2,...
-                 strsplit(num2str(Gs,'%66666.1f')))
-
-            text( time(WCextremaPoss(1:end-1))' + diff(time(WCextremaPoss))'/3 ,...
-                 WCextremaVals(1:end-1) + diff(WCextremaVals)/4*3,...
-                 strsplit(num2str(etas,'%66666.1f')),'Color',[1 .5 0])
-
-            text( time(WCextremaPoss(1:end-1))' + diff(time(WCextremaPoss))'/3 ,...
-                 WCextremaVals(1:end-1) + diff(WCextremaVals)/4,...
-                 strsplit(num2str(1:length(Gs),'%66666.1f')),'Color','red')
-
-            title([['Flow/Centre Static Points - Cell ' num2str(cellNum)] description])
-            xlabel('Time (sec)')
-            ylabel('Centre Difference (\mum)')
-            legend({'Pump Flow','Pulse Edges','Pulse Extrema','Centre Diff.','Centre Diff. Extrema.'},'Location','northwest')
-            set(gca,'FontSize',12)
-            set(gca,'FontWeight','bold')
-    %         saveas(gcf,[path_save '/' num2str(opt.info.experiment(fileNum)) '/Cell' num2str(cellNum) 'rCOM.eps'],'epsc')
-            saveas(gcf,[path_save '/'  info.folder{fileNum} '/Cell' num2str(cellNum) 'rCOM.png'])
-            close(gcf)
-
 
         end
 
-
-        to_table = ones(1,num_cells);
-        variable_names ={};
-        for cellNum = 1:num_cells
-            variable_names = [variable_names,['cell' num2str(cellNum)]];
-        end
-        
-        if isempty(to_table)
-            T = table();
-        else
-            T = array2table(to_table,'VariableNames',variable_names);
-        end
-        
-        
-
-        writetable(T,[path_save '/' info.folder{fileNum} '/table_what_use.xlsx'],'WriteRowNames',true)
-        
-        save([ path_save '/' info.folder{fileNum} '/signals.mat'],'optShear','gamma_signals','tau_signals','times','edgePos_cells')
-        
-        save([ path_save '/' info.folder{fileNum} '/fit_params.mat'],'taus_all','hs_all','Gs_all','etas_all','optShear')
+        save([ path_save '/' info.folder{fileNum} '/fit_params2.mat'],'Gs_minmax_all')
 
         drawnow;
     end
