@@ -96,6 +96,10 @@ for main_folder_num = 1:length(paths)
         tau_signals = cell(1,num_cells);
         times = cell(1,num_cells);
         
+        gamma_signals_orig = cell(1,num_cells);
+        tau_signals_orig  = cell(1,num_cells);
+        times_orig = cell(1,num_cells);
+        
         taus = nan(1,num_cells);
         hs  = nan(1,num_cells);
         Gs = nan(1,num_cells);
@@ -106,7 +110,7 @@ for main_folder_num = 1:length(paths)
         use_vector = zeros(1,num_cells);
 
         
-        for cellNum = 6:num_cells
+        for cellNum = 1:num_cells
             
             try
 
@@ -114,7 +118,10 @@ for main_folder_num = 1:length(paths)
                 cell_height = cell_Height{cellNum};
 
                 gamma_signal_tmp = interp1(imageFrameTimes(1:length(WCdiff)),WCdiff,time_all)/opt.px2mum/median(cell_height);
-
+                
+                gamma_signals_orig{cellNum} = gamma_signal_tmp;
+                tau_signals_orig{cellNum}  = tau_signal_all;
+                times_orig{cellNum} = time_all;
 
                 use = time_all>start & time_all<stop;
                 gamma_signal = gamma_signal_tmp(use);
@@ -245,7 +252,12 @@ for main_folder_num = 1:length(paths)
         
         writetable(T,[path_save '/' info.folder{fileNum} '/table_what_use.xlsx'],'WriteRowNames',true)
         
-        save([ path_save '/' info.folder{fileNum} '/signals.mat'],'gamma_signals','tau_signals','times','polynoms')
+        gamma_signals_orig{cellNum} = gamma_signal_tmp;
+                tau_signals_orig{cellNum}  = tau_signal_all;
+                times_orig{cellNum} = time_all;
+        
+        save([ path_save '/' info.folder{fileNum} '/signals.mat'],'gamma_signals','tau_signals','times','polynoms',...
+            'gamma_signals_orig','tau_signals_orig','times_orig')
         
         save([ path_save '/' info.folder{fileNum} '/fit_params.mat'],'hs','Gs','etas','optShear')
         
