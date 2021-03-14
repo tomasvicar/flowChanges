@@ -1,51 +1,11 @@
 clear all;close all;clc;
 addpath('utils')
 
-data_folder = 'Z:\999992-nanobiomed\Holograf\data_shear_stress_2021';
+data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
 
-% path = [data_folder '\21-02-04 - Shearstress 22Rv1 + PC3-50rez 48h\'];
-% info = readtable([path 'info_04_02_21.xlsx']);
-% flow_folder = [path 'exp_04_02_21'];
-% 
-% path = [data_folder '\21-01-28 - Shear stress 14h vs 1week PC3 untreated\'];
-% info = readtable([path 'info_28_01_21.xlsx']);
-% flow_folder = [path 'exp_28_01_21'];
-
-
-% path = [data_folder '\21-01-26 - Shearstress 24h-4h PC3\'];
-% info = readtable([path 'info_26_01_21.xlsx']);
-% flow_folder = [path 'exp_26_01_21'];
-
-
-% path = [data_folder '\21-02-05 - Shearstress PC3 docetax 200nM 24h cytD 1uM\'];
-% info = readtable([path 'info_05_02_21.xlsx']);
-% flow_folder = [path 'exp_05_02_21'];
-
-
-% path = [data_folder '\21-01-29 - Shearsress CytD 10um 4h vs untreated PC3 48h pos seed\'];
-% info = readtable([path 'info_29_01_21.xlsx']);
-% flow_folder = [path 'exp_29_01_21'];
-
-
-% path = [data_folder '\21-01-27 - Shear stress vzestupny 22Rv1 PC3\'];
-% info = readtable([path 'info_27_01_21.xlsx']);
-% flow_folder = [path 'exp_27_01_21'];
-
-
-% path = [data_folder '\20-12-10 - Shearstress PC3 calA ruzne dyny\'];
-% info = readtable([path 'info_10_12_20.xlsx']);
-% flow_folder = [path 'exp_10_12_20'];
-
-
-% path = [data_folder '\20-12-18 PC3 vs 22Rv1_4days_post_seeding\'];
-% info = readtable([path 'info_18_12_20.xlsx']);
-% flow_folder = [path 'exp_18_12_20'];
-
-
-path = [data_folder '\20-11-19 - Shearstress PC3 various dyn time\'];
-info = readtable([path 'info_19_11_20.xlsx']);
-flow_folder = [path 'exp_19_11_20'];
-
+path = [data_folder '\21-03-12 - Shearstress PC3 PC3doc PC3CytD\'];
+info = readtable([path 'info_12_03_21.xlsx']);
+flow_folder = [path 'exp_12_03_21'];
 
 
 
