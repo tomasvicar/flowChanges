@@ -58,7 +58,7 @@ for main_folder_num = 1:length(paths)
     end
     
     
-    for fileNum = 1:height(opt.info)
+    for fileNum = 22%:height(opt.info)
         
         disp(num2str(fileNum))
         
@@ -72,7 +72,9 @@ for main_folder_num = 1:length(paths)
         pumpFlowTimes = data.pumpFlowTimes;
         pumpFlowValues = data.pumpFlowValues;
         
-        
+        if fileNum==22%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            flowmeterTimes(flowmeterTimes<0) = 299.2495 + 9.8554 + flowmeterTimes(flowmeterTimes<0) +0.005;
+        end
         T_flow = mean(abs(diff(flowmeterTimes)));
         
         flowmeterValues = medfilt1(flowmeterValues,odd(medSize/T_flow));
@@ -112,7 +114,7 @@ for main_folder_num = 1:length(paths)
         
         for cellNum = 1:num_cells
             
-            try
+            
 
                 WCdiff = cell_WCdiff{cellNum} ;
                 cell_height = cell_Height{cellNum};
@@ -129,12 +131,20 @@ for main_folder_num = 1:length(paths)
     %             tau_signal = tau_signal_all(use);
                 pump_signal = pump_signal_all(use);
 
-
+            if ~isempty(gamma_signal)
                 if any(isnan(gamma_signal))||find(use,1,'last')>length(tau_signal_all)||max(time_all(:))<(stop-10)
-                   disp('short')
-                   continue
+                   
+                    use_vector(cellNum) = 0;
+                else
+                   
+                   use_vector(cellNum) = 1;
                 end
-
+                
+            else
+                use_vector(cellNum) = 0;
+            end
+                
+            try
                 gamma_signals{cellNum} = gamma_signal;
                 tau_signals{cellNum} = tau_signal_all(use);
                 times{cellNum} = time;
@@ -195,7 +205,7 @@ for main_folder_num = 1:length(paths)
                 Gs(cellNum) = G;
                 etas(cellNum) = eta;
                 
-                use_vector(cellNum) = 1;
+                
 
                 close all force;
                 hold off;
@@ -230,11 +240,11 @@ for main_folder_num = 1:length(paths)
                 close(gcf)
             catch EM
                disp('error')
-               
+               use_vector(cellNum) = 0;
                save([path_save '/'  info.folder{fileNum} '/Cell' num2str(cellNum) 'error.mat'])
                 
             end
-        
+            drawnow;
         end
         
         
