@@ -4,7 +4,7 @@ addpath('utils');addpath('utils/plotSpread')
 threshold = 0.2;
 
 % data_folder = 'Z:\999992-nanobiomed\Holograf\data_shear_stress_2021';
-data_folder = 'G:\Sdílené disky\Quantitative GAČR\data\data_shear_stress_2021';
+data_folder = 'E:\Sdílené disky\Quantitative GAČR\data\data_shear_stress_2021';
 
 file_names_qpi_image ={};
 
