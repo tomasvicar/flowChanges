@@ -2,12 +2,15 @@ clear all;close all;clc;
 addpath('utils')
 
 
+
 data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress\cell_types';
+
 
 
 paths = {};
 infos = {};
 flow_folders = {};
+
 
 
 
@@ -35,6 +38,7 @@ flow_folders = [flow_folders flow_folder];
 
 start = 60;
 stop = 215;
+
 T_period = 0.05;
 medSize = 2;
 
@@ -67,7 +71,9 @@ for main_folder_num = 1:length(paths)
     end
     
     
+
     for fileNum = 1:height(opt.info)
+
         
         disp(num2str(fileNum))
         

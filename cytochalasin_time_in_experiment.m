@@ -154,74 +154,235 @@ end
 
 mkdir('results')
 
+
+
+
+
+
+
+
+q = 4:4:24;
+class_cell = {};
+class_num = [];
+for k = 1:length(class)
+    
+    
+   tmp = class(k); 
+    
+    [~,tmp2] = min(abs(q-tmp));
+    
+    tmp = q(tmp2);
+
+    class_cell{k} = num2str(tmp,'%02.f');
+    class_num(k) = tmp;
+end  
+
+
+
+
+
+class = class_cell;
+
+
+
+
 figure()
-plot(class,Gs,'*')
+boxplot_special(class,Gs)
 xtickangle(-45)
 ylabel('G (Pa)')
-
-hold on
-% f=fit(class',Gs','poly1','Robust','LAR');
-f=fit(class',Gs','poly1');
-class_est = min(class):0.01:max(class);
-% p = [f.p1,f.p2,f.p3,f.p4];
-p = [f.p1,f.p2];
-gammas_est = polyval(p,class_est);
-plot(class_est,gammas_est)
-
+xlabel('recovery time (min)')
 print_png_fig(['results/' save_name '_G'])
 
 
-
 figure()
-plot(class,confluences,'*')
+boxplot_special(class,confluences)
 xtickangle(-45)
 ylabel('confluence')
-
-hold on
-% f=fit(class',confluences','poly1','Robust','LAR');
-f=fit(class',confluences','poly1');
-class_est = min(class):0.01:max(class);
-% p = [f.p1,f.p2,f.p3,f.p4];
-p = [f.p1,f.p2];
-gammas_est = polyval(p,class_est);
-plot(class_est,gammas_est)
-
+xlabel('recovery time (min)')
 print_png_fig(['results/' save_name '_confluence'])
 
 
 
 figure()
-plot(class,etas,'*')
+boxplot_special(class,etas)
 xtickangle(-45)
 ylabel('\eta (Pa s)')
-
-hold on
-% f=fit(class',etas','poly1','Robust','LAR');
-f=fit(class',etas','poly1');
-class_est = min(class):0.01:max(class);
-% p = [f.p1,f.p2,f.p3,f.p4];
-p = [f.p1,f.p2];
-gammas_est = polyval(p,class_est);
-plot(class_est,gammas_est)
-
+xlabel('recovery time (min)')
 print_png_fig(['results/' save_name '_eta'])
 
 
 figure()
-plot(class,slopes,'*')
+boxplot_special(class,slopes)
 xtickangle(-45)
 ylabel('Movement (\mu m / s)')
-
-hold on
-% f=fit(class',slopes','poly1','Robust','LAR');
-f=fit(class',slopes','poly1');
-class_est = min(class):0.01:max(class);
-% p = [f.p1,f.p2,f.p3,f.p4];
-p = [f.p1,f.p2];
-gammas_est = polyval(p,class_est);
-plot(class_est,gammas_est)
-
+xlabel('recovery time (min)')
 print_png_fig(['results/' save_name 'slopes'])
+
+
+
+
+
+
+max_len = max(cellfun(@length, signal_for_avg));
+to_avg = nan(length(signal_for_avg),max_len);
+for k = 1:length(signal_for_avg)
+    if length(signal_for_avg{k})==max_len
+        to_avg(k,:) = signal_for_avg{k};
+    end
+end
+
+colors  = get(gca,'colororder');
+
+uu = unique(class);
+figure()
+hold on 
+for k = 1:length(uu)
+
+    u = uu{k};
+    use = strcmp(u,class);
+    to_avg_tmp = to_avg(use,:);
+    
+%     for kk = 1:size(to_avg_tmp,1)
+%         pqq = plot(time,to_avg(kk,:),'Color',colors(k,:),'LineWidth',0.1);
+%         alpha(pqq,.3) 
+%         set(get(get(pqq,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+%     end
+    
+    
+    med_size =27;
+    
+    avg_gamma_signal = nanmedian(to_avg_tmp,1);
+    avg_gamma_signal = medfilt1(avg_gamma_signal,med_size,'truncate');
+    mi = min(avg_gamma_signal);
+    avg_gamma_signal = avg_gamma_signal-mi;
+   
+    pq = plot(time,avg_gamma_signal,'Color',colors(k,:),'LineWidth',2);
+    
+    
+    y_bot = quantile(to_avg_tmp,0.25,1);
+    y_bot = medfilt1(y_bot,med_size,'truncate');
+    y_bot = y_bot-mi;
+    
+    y_up = quantile(to_avg_tmp,0.75,1);
+    y_up = medfilt1(y_up,med_size,'truncate');
+    y_up = y_up-mi;
+    
+    
+    x = time;
+    p = fill([x;x(end:-1:1)],[y_bot,y_up(end:-1:1)]',pq.Color,'EdgeColor','none');
+    alpha(p,.2) 
+    set(get(get(p,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+    drawnow;
+end
+
+legend(uu)
+
+
+print_png_fig(['results/' save_name 'avg_signals'])
+
+
+
+
+
+colors  = get(gca,'colororder');
+uu = unique(class);
+figure()
+hold on 
+for k = 1:length(uu)
+
+    u = uu{k};
+    use = strcmp(u,class);
+    
+    
+    plot(Gs(use),etas(use),'*','Color',colors(k,:));
+    
+    
+    
+end
+legend(uu)
+ylabel('\eta (Pa s)')
+xlabel('G (Pa)')
+xlim([0 300])
+ylim([0 1000])
+print_png_fig(['results/' save_name '_G_vs_eta'])
+
+
+
+
+
+
+
+
+
+
+% figure()
+% plot(class,Gs,'*')
+% xtickangle(-45)
+% ylabel('G (Pa)')
+% 
+% hold on
+% % f=fit(class',Gs','poly1','Robust','LAR');
+% f=fit(class',Gs','poly1');
+% class_est = min(class):0.01:max(class);
+% % p = [f.p1,f.p2,f.p3,f.p4];
+% p = [f.p1,f.p2];
+% gammas_est = polyval(p,class_est);
+% plot(class_est,gammas_est)
+% 
+% print_png_fig(['results/' save_name '_G'])
+% 
+% 
+% 
+% figure()
+% plot(class,confluences,'*')
+% xtickangle(-45)
+% ylabel('confluence')
+% 
+% hold on
+% % f=fit(class',confluences','poly1','Robust','LAR');
+% f=fit(class',confluences','poly1');
+% class_est = min(class):0.01:max(class);
+% % p = [f.p1,f.p2,f.p3,f.p4];
+% p = [f.p1,f.p2];
+% gammas_est = polyval(p,class_est);
+% plot(class_est,gammas_est)
+% 
+% print_png_fig(['results/' save_name '_confluence'])
+% 
+% 
+% 
+% figure()
+% plot(class,etas,'*')
+% xtickangle(-45)
+% ylabel('\eta (Pa s)')
+% 
+% hold on
+% % f=fit(class',etas','poly1','Robust','LAR');
+% f=fit(class',etas','poly1');
+% class_est = min(class):0.01:max(class);
+% % p = [f.p1,f.p2,f.p3,f.p4];
+% p = [f.p1,f.p2];
+% gammas_est = polyval(p,class_est);
+% plot(class_est,gammas_est)
+% 
+% print_png_fig(['results/' save_name '_eta'])
+% 
+% 
+% figure()
+% plot(class,slopes,'*')
+% xtickangle(-45)
+% ylabel('Movement (\mu m / s)')
+% 
+% hold on
+% % f=fit(class',slopes','poly1','Robust','LAR');
+% f=fit(class',slopes','poly1');
+% class_est = min(class):0.01:max(class);
+% % p = [f.p1,f.p2,f.p3,f.p4];
+% p = [f.p1,f.p2];
+% gammas_est = polyval(p,class_est);
+% plot(class_est,gammas_est)
+% 
+% print_png_fig(['results/' save_name 'slopes'])
 
 
 
