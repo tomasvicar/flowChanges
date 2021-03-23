@@ -1,292 +1,237 @@
 clear all;close all;clc;
-addpath('utils')
+addpath('utils');addpath('utils/plotSpread')
 
+threshold = 0.2;
 
+% data_folder = 'Z:\999992-nanobiomed\Holograf\data_shear_stress_2021';
+data_folder = 'E:\Sdílené disky\Quantitative GAČR\data\21-03-12 - Shearstress\cell_types';
 
-data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress\cell_types';
+file_names_qpi_image ={};
 
+file_names = {};
 
-
-paths = {};
-infos = {};
-flow_folders = {};
+path = [data_folder '\21-02-04 - Shearstress 22Rv1 + PC3-50rez 48h\'];
+file_names_tmp = {...
+    '01_WP1_21-02-04_Well1_FOV1_22Rv1_untreated_48h_50-100','22Rv1',1,'48h','opakovani 22Rv1 - predtim byly v male denzite. prvni jamka divne slaby signal'
+    '02_WP1_21-02-04_Well1_FOV2_22Rv1_untreated_48h_50-100','22Rv1',2,'48h',''
+    '03_WP1_21-02-04_Well1_FOV3_22Rv1_untreated_48h_50-100','22Rv1',3,'48h',''
+    '04_WP1_21-02-04_Well2_FOV1_22Rv1_untreated_48h_50-100','22Rv1',1,'48h','well 2 bublina splachla pred merenim dost bunek. pumpa ma od zacatku divne oscilace'
+    '05_WP1_21-02-04_Well4_FOV1_PC-3-50_Zn_48h_50-100','PC-3-50',1,'48h',''
+    '06_WP1_21-02-04_Well4_FOV2_PC-3-50_Zn_48h_50-100','PC-3-50',2,'48h',''
+    '07_WP1_21-02-04_Well4_FOV3_PC-3-50_Zn_48h_50-100','PC-3-50',3,'48h',''
+    '08_WP1_21-02-04_Well5_FOV1_PC-3-50_Zn_48h_50-100','PC-3-50',1,'48h',''
+    '09_WP1_21-02-04_Well5_FOV2_PC-3-50_Zn_48h_50-100','PC-3-50',2,'48h',''
+    '10_WP1_21-02-04_Well5_FOV3_PC-3-50_Zn_48h_50-100','PC-3-50',3,'48h',''
+    '11_WP1_21-02-04_Well5_FOV4_PC-3-50_Zn_48h_50-100','PC-3-50',4,'48h',''
+%     '12_WP1_21-02-04_Well6_FOV1_PC-3-50_Zn_48h_50-100_glass+bubble','PC-3-50',1,'48h','schvalne pridana cca 0.5 ml bublina/9ml medium - test dekonvoluce'
+%     '13_WP1_21-02-04_Well6_FOV2_PC-3-50_Zn_48h_50-100_glass+bubble','PC-3-50',2,'48h',''
+%     '14_WP1_21-02-04_Well6_FOV3_PC-3-50_Zn_48h_50-100_glass+bubble','PC-3-50',3,'48h','13:08 bublina, urvala 2 bunky a pozdeji vsechny ostatni'
+    };
+file_names_qpi_image_tmp = cellfun(@(x) [path  x '/Compensated phase - [0000, 0000].tiff'], {file_names_tmp{:,1}}, 'UniformOutput', false);
+file_names_qpi_image = [file_names_qpi_image,file_names_qpi_image_tmp];
+file_names_tmp(:,1) = cellfun(@(x) [path '/results_2/' x], {file_names_tmp{:,1}}, 'UniformOutput', false);
+file_names = [file_names;file_names_tmp];
 
 
 
 
 path = [data_folder '\21-01-29 - Shearsress CytD 10um 4h vs untreated PC3 48h pos seed\'];
-info = readtable([path 'info_29_01_21.xlsx']);
-flow_folder = [path 'exp_29_01_21'];
-
-paths =[paths path];
-infos = [infos {info}];
-flow_folders = [flow_folders flow_folder];
-
-
-
-
-path = [data_folder '\21-02-04 - Shearstress 22Rv1 + PC3-50rez 48h\'];
-info = readtable([path 'info_04_02_21.xlsx']);
-flow_folder = [path 'exp_04_02_21'];
-
-paths =[paths path];
-infos = [infos {info}];
-flow_folders = [flow_folders flow_folder];
-
-
-
-
-start = 60;
-stop = 215;
-
-T_period = 0.05;
-medSize = 2;
-
-optShear.medSize = medSize;
-optShear.start = start;
-optShear.stop = stop;
-optShear.T_period = T_period;
+file_names_tmp = {...
+%     '01_WP1_21-01-29_Well2_FOV1_PC-3_untreated_48h_50-100','PC-3',1,'48h','po druhem odpojeni odtrzeny vsechny bunky, prvni jamka testovaci proto; hnusny pomaly nastup signalu'
+%     '02_WP1_21-01-29_Well2_FOV2_PC-3_untreated_48h_50-100','PC-3',1,'48h','hnusny signal'
+    '03_WP1_21-01-29_Well3_FOV1_PC-3_untreated_48h_50-100','PC-3',1,'48h','prvni dobra nahravka dneska. po vymene vsech hadic'
+    '04_WP1_21-01-29_Well3_FOV2_PC-3_untreated_48h_50-100','PC-3',2,'48h',''
+    '05_WP1_21-01-29_Well3_FOV3_PC-3_untreated_48h_50-100','PC-3',3,'48h',''
+    '06_WP1_21-01-29_Well3_FOV4_PC-3_untreated_48h_50-100','PC-3',4,'48h',''
+    '07_WP1_21-01-29_Well3_FOV5_PC-3_untreated_48h_50-100','PC-3',5,'48h',''
+%     '08_WP1_21-01-29_Well6_FOV1_PC-3_CytD_3h_10uM_48h_50','PC-3',1,'48h','well 4 nebyly skoro  zadne, 5 preskakuji'
+%     '09_WP1_21-01-29_Well6_FOV2_PC-3_CytD_3h_10uM_48h_50','PC-3',2,'48h',''
+%     '10_WP1_21-01-29_Well6_FOV3_PC-3_CytD_3h_10uM_48h_50','PC-3',3,'48h',''
+%     '11_WP1_21-01-29_Well6_FOV4_PC-3_CytD_3h_10uM_48h_50','PC-3',4,'48h','divne - vubec se nehybou oproti prvniho prutoku.....'
+%     '12_WP1_21-01-29_Well5_FOV1_PC-3_CytD_3h_10uM_48h_50','PC-3',1,'48h',''
+%     '13_WP1_21-01-29_Well5_FOV2_PC-3_CytD_3h_10uM_48h_50','PC-3',2,'48h',''
+%     '14_WP1_21-01-29_Well5_FOV3_PC-3_CytD_3h_10uM_48h_50','PC-3',3,'48h',''
+    };
+file_names_qpi_image_tmp = cellfun(@(x) [path  x '/Compensated phase - [0000, 0000].tiff'], {file_names_tmp{:,1}}, 'UniformOutput', false);
+file_names_qpi_image = [file_names_qpi_image,file_names_qpi_image_tmp];
+file_names_tmp(:,1) = cellfun(@(x) [path 'results_2/' x], {file_names_tmp{:,1}}, 'UniformOutput', false);
+file_names = [file_names;file_names_tmp];
 
 
 
+save_name = 'pc3_pc350_22rv1';
 
-for main_folder_num = 1:length(paths)
-    
-    path =paths{main_folder_num};
-    info = infos{main_folder_num};
-    flow_folder = flow_folders{main_folder_num} ;
+
+Gs = [];
+etas = [];
+slopes = [];
+class = {};
+signal_for_avg = {};
+confluences  = [];
+
+
+for file_num = 1:size(file_names,1)
     
     
+    file_name = file_names{file_num,1};
+    file_name_folder = file_name;
+    file_name_folder = split(file_name_folder,'/');
+    file_name_folder = file_name_folder{end};
     
-    tmp = dir([path 'results_1']);
-    tmp = tmp(3).name;
-    load([path 'results_1/' tmp '/results.mat'],'opt')
-    
-    
-    path_load = [path 'results_1'];
-    path_save = [path 'results_2'];
-    
-    if ~exist(path_save, 'dir')
-        copyfile(path_load,path_save)
-    end
-    
+%     file_name_qpi_image = file_names_qpi_image{file_num};
+%     img = imread(file_name_qpi_image);
+%     binar = img>threshold;
+%     confluence = sum(binar(:))/numel(binar);
     
 
-    for fileNum = 1:height(opt.info)
-
-        
-        disp(num2str(fileNum))
-        
-        
-        data = load([path_save '/' info.folder{fileNum} '\results.mat']);
-        flowmeterValues = data.flowmeterValues;
-        flowmeterTimes = data.flowmeterTimes;
-        cell_WCdiff = data.cell_WCdiff;
-        cell_Height = data.cell_Height;
-        imageFrameTimes = data.imageFrameTimes;
-        pumpFlowTimes = data.pumpFlowTimes;
-        pumpFlowValues = data.pumpFlowValues;
-        
-        if fileNum==22%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            flowmeterTimes(flowmeterTimes<0) = 299.2495 + 9.8554 + flowmeterTimes(flowmeterTimes<0) +0.005;
-        end
-        T_flow = mean(abs(diff(flowmeterTimes)));
-        
-        flowmeterValues = medfilt1(flowmeterValues,odd(medSize/T_flow));
+    params = load([file_name '/fit_params.mat']);
+    signals = load([file_name '/signals.mat']);
+    
+    use_table = readtable([file_name '/table_what_use.xlsx']);
+    num_cells_in_cluster = use_table{end,2:end};
+    use_table = use_table{1:end-1,2:end};
+    
+    for cell_num = 1:size(use_table,2)
         
         
-        max_time = min([flowmeterTimes(end),imageFrameTimes(end)]);
+        use_vector = use_table(:,cell_num);
         
-        
-        time_all = (0:T_period:max_time)';
-        
-        
-        tau_signal_all = interp1(flowmeterTimes,flowmeterValues,time_all)/12.98*0.1; %to Pa;
-        
-        
-        pump_signal_all = interp1(pumpFlowTimes,pumpFlowValues,time_all)/12.98*0.1; %to Pa;
-         
-        
-        num_cells = length(cell_WCdiff);
-        
-        gamma_signals = cell(1,num_cells);
-        tau_signals = cell(1,num_cells);
-        times = cell(1,num_cells);
-        
-        gamma_signals_orig = cell(1,num_cells);
-        tau_signals_orig  = cell(1,num_cells);
-        times_orig = cell(1,num_cells);
-        
-        taus = nan(1,num_cells);
-        hs  = nan(1,num_cells);
-        Gs = nan(1,num_cells);
-        etas = nan(1,num_cells);
-        
-        polynoms = cell(1,num_cells);
-        
-        use_vector = zeros(1,num_cells);
-
-        
-        for cellNum = 1:num_cells
-            
-            
-
-                WCdiff = cell_WCdiff{cellNum} ;
-                cell_height = cell_Height{cellNum};
-
-                gamma_signal_tmp = interp1(imageFrameTimes(1:length(WCdiff)),WCdiff,time_all)/opt.px2mum/median(cell_height);
-                
-                gamma_signals_orig{cellNum} = gamma_signal_tmp;
-                tau_signals_orig{cellNum}  = tau_signal_all;
-                times_orig{cellNum} = time_all;
-
-                use = time_all>start & time_all<stop;
-                gamma_signal = gamma_signal_tmp(use);
-                time = time_all(use);
-    %             tau_signal = tau_signal_all(use);
-                pump_signal = pump_signal_all(use);
-
-            if ~isempty(gamma_signal)
-                if any(isnan(gamma_signal))||find(use,1,'last')>length(tau_signal_all)||max(time_all(:))<(stop-10)
-                   
-                    use_vector(cellNum) = 0;
-                else
-                   
-                   use_vector(cellNum) = 1;
-                end
-                
-            else
-                use_vector(cellNum) = 0;
-            end
-                
-            try
-                gamma_signals{cellNum} = gamma_signal;
-                tau_signals{cellNum} = tau_signal_all(use);
-                times{cellNum} = time;
-
-
-                tt_h = 0:T_period:50;
-                tt_h = tt_h(:);
-
-                ttt = time(floor(length(tt_h)/2)+1:end-floor(length(tt_h)/2));
-                gamma = gamma_signal(floor(length(tt_h)/2)+1:end-floor(length(tt_h)/2));
-                tau =  tau_signal_all;
-
-                order = 3;
-                h = @(b,x) b(1)*b(2)*exp(-b(2)*x);
-
-                pred = @(b) (conv(crop_sig(custom_shift(tau,b(3)),use),h(b,tt_h), 'valid' )*T_period+polyval(coeffvalues(fit(ttt,(gamma - conv(crop_sig(custom_shift(tau,b(3)),use),h(b,tt_h), 'valid' )*T_period),['poly' num2str(order)],'Robust','LAR')),ttt));
-
-                nrmrsd  = @(b) double(norm(gamma - pred(b) , 1) );
-
-                B0 = [0.0139    0.4582  17/T_period];
-                lb = [0.0005 0.005 10/T_period];
-                ub = [2 25 30/T_period];
-
-                Aneq = [];
-                bneq = [];
-                Aeq = [];
-                beq = [];
-                nonlcon = [];
-
-
-
-                bss={};
-                fvals = [];
-                alg = {};
-                iter = [];
-                iters = 1 ;
-                for k = 1:iters
-                    tic
-        %             'PlotFcn','psplotbestf'
-                    options = optimoptions('patternsearch','FunctionTolerance',0,'MaxIterations',175,'MeshTolerance',0,'StepTolerance',0,'MaxFunctionEvaluations',9999999,'UseParallel',true');
-                    [b,fval] = patternsearch(nrmrsd,B0,Aneq,bneq,Aeq,beq,lb,ub,nonlcon,options);
-                    bss=[bss,b];
-                    fvals = [fvals,fval];
-                    alg = [alg,'ps'];
-                    iter = [iter,k];
-                    toc
-
-
-
-                end
-                [~,tmp] = min(fvals);
-                b = bss{tmp};
-
-                G = 1/b(1);
-                eta = G/b(2);
-
-                hs(cellNum) = median(cell_height);
-                Gs(cellNum) = G;
-                etas(cellNum) = eta;
-                
-                
-
-                close all force;
-                hold off;
-                title(['Cell' num2str(cellNum) '   '  num2str(G) '   ' num2str(eta)])
-                hold on;
-                tmp = pred(b);
-                plot(0:T_period:(length(tmp)-1)*T_period,gamma)
-                plot(0:T_period:(length(tmp)-1)*T_period,tmp)
-                plot(0:T_period:(length(tmp)-1)*T_period,polyval(coeffvalues(fit(ttt,(gamma - conv(crop_sig(custom_shift(tau,b(3)),use),h(b,tt_h), 'valid' )*T_period),['poly' num2str(order)],'Robust','LAR')),ttt))
-                drawnow;
-                saveas(gcf,[path_save '/'  info.folder{fileNum} '/Cell' num2str(cellNum) '_fit.png'])
-                close(gcf)
-
-
-                figure();
-                yyaxis left
-                tmp = tau;
-                plot(time_all,tmp)
-                yyaxis right
-                polynom = polyval(coeffvalues(fit(ttt,(gamma - conv(crop_sig(custom_shift(tau,b(3)),use),h(b,tt_h), 'valid' )*T_period),['poly' num2str(order)],'Robust','LAR')),ttt);
-                polynoms{cellNum} = polynom;
-                tmp = gamma-polynom;
-                plot(ttt,tmp)  
-                hold on;
-                tmp = pred(b)-polynom;
-                plot(ttt,tmp,'-r')  
-                title(['Cell' num2str(cellNum) '   '  num2str(G) '   ' num2str(eta)])
-                drawnow;
-
-                saveas(gcf,[path_save '/'  info.folder{fileNum} '/Cell' num2str(cellNum) '_fit2.png'])
-
-                close(gcf)
-            catch EM
-               disp('error')
-               use_vector(cellNum) = 0;
-               save([path_save '/'  info.folder{fileNum} '/Cell' num2str(cellNum) 'error.mat'])
-                
-            end
-            drawnow;
+        if sum(use_vector) ==0
+            continue;
         end
         
         
-        to_table = [use_vector;-1*ones(size(use_vector))];
-        variable_names ={};
-        for cellNum = 1:num_cells
-            variable_names = [variable_names,['cell' num2str(cellNum)]];
-        end
+        G = params.Gs(cell_num);
+        eta =  params.etas(cell_num);
         
-        if isempty(to_table)
-            T = table();
+        
+        gamma_signal = signals.gamma_signals{cell_num};
+        time = signals.times{cell_num};
+%         bg = bg_fit_iterative_polynom(time,gamma_signal);
+
+        bg_signal = signals.polynoms{cell_num};
+        
+        
+        tt_h = 0:params.optShear.T_period :50;
+        tt_h = tt_h(:);
+
+        ttt = time(floor(length(tt_h)/2)+1:end-floor(length(tt_h)/2));
+
+
+        if (max(time) - min(time))<110
+            slope = nan;
         else
-            T = array2table(to_table,'VariableNames',variable_names,'RowNames',{'use','num_cells'});
+%             f=fit(time,bg*params.hs_all{cell_num},'poly1');
+            f=fit(ttt,bg_signal*params.hs(cell_num),'poly1');
+            slope = f.p1;
         end
         
-        writetable(T,[path_save '/' info.folder{fileNum} '/table_what_use.xlsx'],'WriteRowNames',true)
         
-        gamma_signals_orig{cellNum} = gamma_signal_tmp;
-                tau_signals_orig{cellNum}  = tau_signal_all;
-                times_orig{cellNum} = time_all;
+        Gs = [Gs,G];
+        etas = [etas,eta];
+        slopes = [slopes,slope];
         
-        save([ path_save '/' info.folder{fileNum} '/signals.mat'],'gamma_signals','tau_signals','times','polynoms',...
-            'gamma_signals_orig','tau_signals_orig','times_orig')
+%         signal_for_avg = [signal_for_avg,gamma_signal-bg];
+
+        signal_for_avg = [signal_for_avg,gamma_signal];
         
-        save([ path_save '/' info.folder{fileNum} '/fit_params.mat'],'hs','Gs','etas','optShear')
+        class = [class,file_names{file_num,2}];
+%         class = [class,[file_name_folder file_names{file_num,2}]];
         
-        
-        
+%         confluences  = [confluences,confluence];
     end
 end
+
+mkdir('results')
+
+figure()
+boxplot_special(class,Gs)
+xtickangle(-45)
+ylabel('G (Pa)')
+print_png_fig(['results/' save_name '_G'])
+
+% 
+% figure()
+% boxplot_special(class,confluences)
+% xtickangle(-45)
+% ylabel('confluence')
+% print_png_fig(['results/' save_name '_confluence'])
+
+
+
+figure()
+boxplot_special(class,etas)
+xtickangle(-45)
+ylabel('\eta (Pa s)')
+print_png_fig(['results/' save_name '_eta'])
+
+
+figure()
+boxplot_special(class,slopes)
+xtickangle(-45)
+ylabel('Movement (\mu m / s)')
+print_png_fig(['results/' save_name 'slopes'])
+
+
+
+
+
+
+max_len = max(cellfun(@length, signal_for_avg));
+to_avg = nan(length(signal_for_avg),max_len);
+for k = 1:length(signal_for_avg)
+    if length(signal_for_avg{k})==max_len
+        to_avg(k,:) = signal_for_avg{k};
+    end
+end
+
+colors  = get(gca,'colororder');
+
+uu = unique(class);
+figure()
+hold on 
+for k = 1:length(uu)
+
+    u = uu{k};
+    use = strcmp(u,class);
+    to_avg_tmp = to_avg(use,:);
+    
+%     for kk = 1:size(to_avg_tmp,1)
+%         pqq = plot(time,to_avg(kk,:),'Color',colors(k,:),'LineWidth',0.1);
+%         alpha(pqq,.3) 
+%         set(get(get(pqq,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+%     end
+    
+    
+    med_size =27;
+    
+    avg_gamma_signal = nanmedian(to_avg_tmp,1);
+    avg_gamma_signal = medfilt1(avg_gamma_signal,med_size,'truncate');
+    mi = min(avg_gamma_signal);
+    avg_gamma_signal = avg_gamma_signal-mi;
+   
+    pq = plot(time,avg_gamma_signal,'Color',colors(k,:),'LineWidth',2);
+    
+    
+    y_bot = quantile(to_avg_tmp,0.25,1);
+    y_bot = medfilt1(y_bot,med_size,'truncate');
+    y_bot = y_bot-mi;
+    
+    y_up = quantile(to_avg_tmp,0.75,1);
+    y_up = medfilt1(y_up,med_size,'truncate');
+    y_up = y_up-mi;
+    
+    
+    x = time;
+    p = fill([x;x(end:-1:1)],[y_bot,y_up(end:-1:1)]',pq.Color,'EdgeColor','none');
+    alpha(p,.2) 
+    set(get(get(p,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+    drawnow;
+end
+
+legend(uu)
+
+
+print_png_fig(['results/' save_name 'avg_signals'])
+
+
