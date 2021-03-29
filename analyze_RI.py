@@ -72,8 +72,11 @@ for file_name,frames_change in zip(file_names,frames_changes):
     
     phi2 = img2
     
+    alpha = 0.18;
+    lambda_ = 0.65;
+    pi = np.pi
     
-    nm1 = 1.3353
+    nm1 = 1.3349
     nm2 = 1.3864
     
     ns = (phi1*nm2 - phi2*nm1)/(phi1-phi2)
@@ -83,13 +86,20 @@ for file_name,frames_change in zip(file_names,frames_changes):
     
     ns = ns.astype(np.float32)
         
-    imsave(fname.replace('.qdf','')+'RI.tif',ns)
-
-    plt.figure()
-    plt.imshow(ns)
-    plt.show()
-klo
+    # imsave(fname.replace('.qdf','')+'RI.tif',ns)
     
+    
+    hs = lambda_*(phi2 - phi1)/(2*pi*(nm1-nm2))
+    imsave(fname.replace('.qdf','')+'_hs.tif',hs.astype(np.float32))
+
+    # plt.figure()
+    # plt.imshow(ns)
+    # plt.show()
+
+    
+    plt.figure()
+    plt.imshow(hs)
+    plt.show()
 
 
 
