@@ -8,14 +8,20 @@ import matplotlib.pyplot as plt
 
 
 
-path = r'Z:\999992-nanobiomed\Holograf\21-03-25 - PC3 refractiveindex'
+path = r'Z:\999992-nanobiomed\Holograf\21-04-15 - 22Rv1 refractiveindex'
 
 
 
-file_names = ['01.qdf','02.qdf','03.qdf','04.qdf']
+file_names = ['01_WP1_21-04-15_Well1_FOV1_22Rv1_idoxanol50prc_RI13846_48h_50.qdf',
+              '02_WP1_21-04-15_Well1_FOV2_22Rv1_idoxanol50prc_RI13852_48h_50.qdf',
+              '03_WP1_21-04-15_Well1_FOV3_22Rv1_idoxanol50prc_RI13852_48h_50.qdf',
+              '04_WP1_21-04-15_Well1_FOV4_22Rv1_idoxanol50prc_RI13852_48h_50_40x.qdf',
+              '05_WP1_21-04-15_Well1_FOV4_22Rv1_idoxanol50prc_RI13852_48h_50_40x_nocomp.qdf',
+              ]
 
 
-frames_changes = [[10,197,212,412],[9,215,241,428],[14,201,259,449],[22,212,262,452]]
+frames_changes = [[13,200,253,440],[21,207,271,469],[25,215,286,479],[18,180,228,352],[18,146,177,336]]
+
 
 
 for file_name,frames_change in zip(file_names,frames_changes):
@@ -89,11 +95,11 @@ for file_name,frames_change in zip(file_names,frames_changes):
     
     ns = ns.astype(np.float32)
         
-    # imsave(fname.replace('.qdf','')+'RI.tif',ns)
+    imsave(fname.replace('.qdf','')+'RI.tif',ns)
     
     
     hs = lambda_*(phi2 - phi1)/(2*pi*(nm1-nm2))
-    # imsave(fname.replace('.qdf','')+'_hs.tif',hs.astype(np.float32))
+    imsave(fname.replace('.qdf','')+'_hs.tif',hs.astype(np.float32))
 
     plt.figure()
     plt.imshow(ns)
@@ -105,6 +111,5 @@ for file_name,frames_change in zip(file_names,frames_changes):
     plt.show()
 
 
-    dfsdfsfd
 
 
