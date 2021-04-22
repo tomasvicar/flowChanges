@@ -11,9 +11,9 @@ addpath('utils')
 
 data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
 
-path = [data_folder '\21-03-12 - Shearstress PC3 PC3doc PC3CytD\'];
-info = readtable([path 'info_12_03_21.xlsx']);
-flow_folder = [path 'exp_12_03_21'];
+path = [data_folder '\21-03-25 - Shearstress 22Rv1\'];
+info = readtable([path 'info_25_03_21.xlsx']);
+flow_folder = [path 'exp_25_03_21'];
 
 
 

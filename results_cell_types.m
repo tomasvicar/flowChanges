@@ -3,7 +3,7 @@ addpath('utils');addpath('utils/plotSpread')
 
 threshold = 0.2;
 
-data_folder = 'E:\Sdílené disky\Quantitative GAČR\data\21-03-12 - Shearstress';
+data_folder = 'G:\Sdílené disky\Quantitative GAČR\data\21-03-12 - Shearstress';
 
 file_names_qpi_image ={};
 

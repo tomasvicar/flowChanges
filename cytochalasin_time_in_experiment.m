@@ -3,7 +3,7 @@ addpath('utils');addpath('utils/plotSpread')
 
 threshold = 0.2;
 
-data_folder = 'E:\Sdílené disky\Quantitative GAČR\data\21-03-12 - Shearstress';
+data_folder = 'G:\Sdílené disky\Quantitative GAČR\data\21-03-12 - Shearstress';
 
 file_names_qpi_image ={};
 
@@ -67,7 +67,12 @@ file_names_qpi_image = [file_names_qpi_image,file_names_qpi_image_tmp];
 file_names_tmp(:,1) = cellfun(@(x) [path '/results_2/' x], {file_names_tmp{:,1}}, 'UniformOutput', false);
 file_names = [file_names;file_names_tmp];
 
+delta_n_old = 0.0200;
+delta_n_pc3 = 0.0239;
+delta_n_22rv1 = 0.0251;
 
+q_pc3 = delta_n_pc3/delta_n_old;
+q_22rv1 = delta_n_22rv1/delta_n_old;
 
 save_name = 'cytochalasin_time_in_experiment';
 
@@ -93,6 +98,7 @@ for file_num = 1:size(file_names,1)
     binar = img>threshold;
     confluence = sum(binar(:))/numel(binar);
     
+    cell_type = file_names{file_num,2};
 
     params = load([file_name '/fit_params.mat']);
     signals = load([file_name '/signals.mat']);
@@ -120,6 +126,22 @@ for file_num = 1:size(file_names,1)
 %         bg = bg_fit_iterative_polynom(time,gamma_signal);
 
         bg_signal = signals.polynoms{cell_num};
+        
+        
+        if contains(cell_type,'PC-3')
+            q = q_pc3;
+            
+        elseif contains(cell_type,'22Rv1')
+            q = q_22rv1;
+            
+        else
+            error('incorect cell type')
+        end
+        
+        G = G/q;
+        eta = eta/q;
+        gamma_signal = gamma_signal*q;
+        bg_signal = bg_signal*q;
         
         
         tt_h = 0:params.optShear.T_period :50;
@@ -159,9 +181,9 @@ mkdir('results')
 
 
 
-
-
-q = 4:4:24;
+q = 4:6:22;
+% q = 4:4:24;
+% q = 4:5:24;
 class_cell = {};
 class_num = [];
 for k = 1:length(class)
