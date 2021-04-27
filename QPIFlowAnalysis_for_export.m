@@ -42,7 +42,7 @@ for ii = 1:numel(listVars)
     opt.(listVars(ii).name) = eval(listVars(ii).name);
 end
 %% execution
-for fileNum = 3:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     disp(num2str(fileNum))
     
 %     err = [];
@@ -227,7 +227,10 @@ for fileNum = 3:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         Ibb = Ibb(:,:,1:videoFrameStep:end);
         
         imwrite_single(Ibb,[path_save info.folder{fileNum} '\Cell' num2str(cellNum) 'BBVideo.tif'])
-       
+        
+        kymograph = squeeze(Ibb(:,round(size(Ibb,2)/2),:));
+        imwrite_single(kymograph,[path_save info.folder{fileNum} '\Cell' num2str(cellNum) 'kymograph.tif'])
+        imwrite(mat2gray(kymograph),[path_save info.folder{fileNum} '\Cell' num2str(cellNum) 'kymograph.png'])
        
         Mbb = labels(ceil(BB.BoundingBox(cellNum,2)):ceil(BB.BoundingBox(cellNum,2))+ceil(BB.BoundingBox(cellNum,5))-1,...
             ceil(BB.BoundingBox(cellNum,1)):ceil(BB.BoundingBox(cellNum,1))+ceil(BB.BoundingBox(cellNum,4))-1,...
