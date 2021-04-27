@@ -10,7 +10,9 @@ import os
 # path = r'Z:\999992-nanobiomed\Holograf\21-01-29 - Shearsress CytD 10um 4h vs untreated PC3 48h pos seed'
 
 
-path = r'Z:\999992-nanobiomed\Holograf\21-03-25 - Shearstress 22Rv1'
+# path = r'Z:\999992-nanobiomed\Holograf\21-03-25 - Shearstress 22Rv1'
+
+path = r'Z:\999992-nanobiomed\Holograf\21-03-25 - PC3 refractiveindex\PC3_vymenamedia_hs+vypocitane_h\height+RI_vymenamedia'
 
 filenames =  glob(path + os.sep + '*.qdf')
 
