@@ -9,15 +9,23 @@ addpath('utils')
 
 
 
-data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
+% data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
+% 
+% path = [data_folder '\for_export\'];
+% info = readtable([path 'for_export.xlsx']);
+% flow_folder = [path 'exp_for_export'];
 
-path = [data_folder '\for_export\'];
-info = readtable([path 'for_export.xlsx']);
-flow_folder = [path 'exp_for_export'];
+
+data_folder = 'Z:\999992-nanobiomed\Holograf\data_shear_stress_2021\';
+
+path = [data_folder '\21-01-27 - Shear stress vzestupny 22Rv1 PC3\'];
+info = readtable([path 'info_27_01_21.xlsx']);
+flow_folder = [path 'exp_27_01_21'];
 
 
 
-path_save = [path 'results_1\'];
+
+path_save = [path 'results_3\'];
 
 %% options
 % segmentation and analysis parameters
@@ -42,7 +50,7 @@ for ii = 1:numel(listVars)
     opt.(listVars(ii).name) = eval(listVars(ii).name);
 end
 %% execution
-for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for fileNum = 1:10%size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     disp(num2str(fileNum))
     
 %     err = [];

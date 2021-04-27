@@ -6,6 +6,7 @@ addpath('utils')
 data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
 
 
+
 paths = {};
 infos = {};
 flow_folders = {};
@@ -54,6 +55,10 @@ for main_folder_num = 1:length(paths)
     
     path_load = [path 'results_1'];
     path_save = [path 'results_2'];
+    
+    
+    
+    
     
     if ~exist(path_save, 'dir')
         copyfile(path_load,path_save)
