@@ -286,9 +286,58 @@ end
 legend(uu)
 
 
-print_png_fig(['results/' save_name 'avg_signals'])
+
+print_png_fig(['results/' save_name 'new_median_signals'])
 
 
+
+
+uu = unique(class);
+figure()
+hold on 
+for k = 1:length(uu)
+
+    u = uu{k};
+    use = strcmp(u,class);
+    to_avg_tmp = to_avg(use,:);
+    
+%     for kk = 1:size(to_avg_tmp,1)
+%         pqq = plot(time,to_avg(kk,:),'Color',colors(k,:),'LineWidth',0.1);
+%         alpha(pqq,.3) 
+%         set(get(get(pqq,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+%     end
+    
+    
+    med_size =27;
+    
+    avg_gamma_signal = nanmean(to_avg_tmp,1);
+    avg_gamma_signal = medfilt1(avg_gamma_signal,med_size,'truncate');
+    mi = min(avg_gamma_signal);
+    avg_gamma_signal = avg_gamma_signal-mi;
+   
+    pq = plot(time,avg_gamma_signal,'Color',colors(k,:),'LineWidth',2);
+    
+    
+    y_bot = quantile(to_avg_tmp,0.25,1);
+    y_bot = medfilt1(y_bot,med_size,'truncate');
+    y_bot = y_bot-mi;
+    
+    y_up = quantile(to_avg_tmp,0.75,1);
+    y_up = medfilt1(y_up,med_size,'truncate');
+    y_up = y_up-mi;
+    
+    
+    x = time;
+    p = fill([x;x(end:-1:1)],[y_bot,y_up(end:-1:1)]',pq.Color,'EdgeColor','none');
+    alpha(p,.2) 
+    set(get(get(p,'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+    drawnow;
+end
+
+legend(uu)
+
+
+print_png_fig(['results/' save_name 'new_mean_signals'])
 
 
 
