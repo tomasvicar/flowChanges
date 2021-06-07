@@ -317,6 +317,16 @@ print_png_fig(['results/' save_name 'new_mean_signals'])
 
 
 
+[~,~,stats] = anova1(Gs,class);
+xxx = multcompare(stats);
+
+
+
+[~,~,stats] = anova1(etas,class);
+xxx = multcompare(stats);
+
+
+
 
 
 colors  = get(gca,'colororder');

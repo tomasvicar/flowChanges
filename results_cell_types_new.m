@@ -234,6 +234,15 @@ print_png_fig(['results/' save_name 'slopes'])
 
 
 
+[~,~,stats] = anova1(Gs,class);
+xxx = multcompare(stats);
+
+
+
+[~,~,stats] = anova1(etas,class);
+xxx = multcompare(stats);
+
+
 
 max_len = max(cellfun(@length, signal_for_avg));
 to_avg = nan(length(signal_for_avg),max_len);
