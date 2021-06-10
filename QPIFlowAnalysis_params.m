@@ -3,21 +3,16 @@ addpath('utils')
 
 data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
 
-path = [data_folder '\21-03-12 - Shearstress PC3 PC3doc PC3CytD\'];
+
+path = [data_folder '\new_params\'];
 info = readtable([path 'info_12_03_21.xlsx']);
 flow_folder = [path 'exp_12_03_21'];
 
 
-% 
-% data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
-% 
-% path = [data_folder '\21-03-25 - Shearstress 22Rv1\'];
-% info = readtable([path 'info_25_03_21.xlsx']);
-% flow_folder = [path 'exp_25_03_21'];
 
 
+path_save = [path 'results_11\'];
 
-path_save = [path 'results_1\'];
 
 %% options
 % segmentation and analysis parameters
@@ -214,6 +209,7 @@ for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     close(gcf)
 
     %% Export video of Cell BB
+    stats_frame1_all = {};
     for cellNum = 1:num_cells
         Ibb = I(ceil(BB.BoundingBox(cellNum,2)):ceil(BB.BoundingBox(cellNum,2))+ceil(BB.BoundingBox(cellNum,5))-1,...
             ceil(BB.BoundingBox(cellNum,1)):ceil(BB.BoundingBox(cellNum,1))+ceil(BB.BoundingBox(cellNum,4))-1,...
@@ -228,6 +224,26 @@ for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             ceil(BB.BoundingBox(cellNum,3)):ceil(BB.BoundingBox(cellNum,3))+ceil(BB.BoundingBox(cellNum,6))-1)==cellNum;
         Mbb = uint8(double(Mbb).*255);
         Mbb = Mbb(:,:,1:videoFrameStep:end);
+        
+        
+        Ibb0 = I(ceil(BB.BoundingBox(cellNum,2)):ceil(BB.BoundingBox(cellNum,2))+ceil(BB.BoundingBox(cellNum,5))-1,...
+            ceil(BB.BoundingBox(cellNum,1)):ceil(BB.BoundingBox(cellNum,1))+ceil(BB.BoundingBox(cellNum,4))-1,...
+            ceil(BB.BoundingBox(cellNum,3)):ceil(BB.BoundingBox(cellNum,3))+ceil(BB.BoundingBox(cellNum,6))-1);
+        Mbb0 = labels(ceil(BB.BoundingBox(cellNum,2)):ceil(BB.BoundingBox(cellNum,2))+ceil(BB.BoundingBox(cellNum,5))-1,...
+            ceil(BB.BoundingBox(cellNum,1)):ceil(BB.BoundingBox(cellNum,1))+ceil(BB.BoundingBox(cellNum,4))-1,...
+            ceil(BB.BoundingBox(cellNum,3)):ceil(BB.BoundingBox(cellNum,3))+ceil(BB.BoundingBox(cellNum,6))-1)==cellNum;
+        
+        Ibb_frame1 = Ibb0(:,:,1);
+        Mbb_frame1 = Mbb0(:,:,1);
+        
+        stats_frame1 = regionprops(uint8(Mbb_frame1),Ibb_frame1,'all','struct');
+        stats_frame1.Ibb_frame1 = Ibb_frame1;
+        stats_frame1.Mbb_frame1 = Mbb_frame1;
+        
+        
+        stats_frame1_all = [stats_frame1_all stats_frame1];
+        
+        
 
         posWC = [cell_WC{cellNum}(:,1)-ceil(BB.BoundingBox(cellNum,1)),...
             cell_WC{cellNum}(:,2)-ceil(BB.BoundingBox(cellNum,2))];
@@ -248,7 +264,7 @@ for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         'results.mat'],...
         'cellStats','cell_WC','cell_WCdiff','cell_Height',...
         'flowmeterTimes','flowmeterValues','pumpFlowValues',...
-        'pumpFlowTimes','imageFrameTimes','opt','num_cells')
+        'pumpFlowTimes','imageFrameTimes','opt','num_cells','stats_frame1_all')
     
 %     catch err
 %     save([path_save num2str(info.experiment(fileNum)) 'error.mat'],'err');
