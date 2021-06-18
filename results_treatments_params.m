@@ -128,8 +128,18 @@ for file_num = 1:size(file_names,1)
 %         param = stats.Solidity;
 %         param_type = 'Solidity';
 
-        param =  (4*pi*stats.Area)./(stats.Perimeter.^2 );
-        param_type = 'Circularity';
+%         param =  (4*pi*stats.Area)./(stats.Perimeter.^2 );
+%         param(param>1) = 1-0.02*rand();
+%         param_type = 'Circularity';
+        
+        param = ( stats.Area .* stats.MeanIntensity ) ./ (600/376)^2;
+        param_type = 'Mass';
+
+%         param =  stats.MeanIntensity / (600/376)^2;
+%         param_type = 'Density';
+
+%         param =  stats.Area;% / (600/376)^2;
+%         param_type = 'Area';
         
         
         G = params.Gs(cell_num);
@@ -190,20 +200,27 @@ for file_num = 1:size(file_names,1)
     end
 end
 
-mkdir('results')
+mkdir('results_params_treat')
+
+save_name = param_type;
+
 
 figure()
 boxplot_special(class,Gs)
 xtickangle(-45)
 ylabel('G (Pa)')
-% print_png_fig(['results/' save_name '_G'])
+print_png_fig(['results_params_treat/' save_name '_G'])
 
 
 figure()
 boxplot_special(class,paramss)
 xtickangle(-45)
 ylabel(param_type)
-% print_png_fig(['results/' save_name '_confluence'])
+print_png_fig(['results_params_treat/' save_name '_confluence'])
+
+
+save(['results_params_treat/tmp_params' param_type  '.mat'],'class','paramss','Gs')
+
 
 
 colors  = get(gca,'colororder');
@@ -226,4 +243,4 @@ ylabel(param_type)
 xlabel('G (Pa)')
 xlim([0 200])
 % ylim([0 1000])
-% print_png_fig(['results/' save_name '_G_vs_eta'])
+print_png_fig(['results_params_treat/' save_name '_G_vs_eta'])

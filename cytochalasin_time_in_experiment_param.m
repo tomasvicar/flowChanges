@@ -127,8 +127,18 @@ for file_num = 1:size(file_names,1)
 %         param = stats.Solidity;
 %         param_type = 'Solidity';
 
-        param =  (4*pi*stats.Area)./(stats.Perimeter.^2 );
-        param_type = 'Circularity';
+%         param =  (4*pi*stats.Area)./(stats.Perimeter.^2 );
+%         param(param>1) = 1-0.02*rand();
+%         param_type = 'Circularity';
+
+        param = ( stats.Area .* stats.MeanIntensity ) ./ (600/376)^2;
+        param_type = 'Mass';
+
+%         param =  stats.MeanIntensity / (600/376)^2;
+%         param_type = 'Density';
+%         
+%         param =  stats.Area;% / (600/376)^2;
+%         param_type = 'Area';
 
         
         G = params.Gs(cell_num);
@@ -189,7 +199,7 @@ for file_num = 1:size(file_names,1)
     end
 end
 
-mkdir('results')
+mkdir('results_params_recovery')
 
 
 
@@ -216,7 +226,7 @@ end
 
 
 
-
+save_name = param_type;
 
 class = class_cell;
 
@@ -228,7 +238,7 @@ boxplot_special(class,Gs)
 xtickangle(-45)
 ylabel('G (Pa)')
 xlabel('recovery time (min)')
-% print_png_fig(['results/' save_name '_G'])
+print_png_fig(['results_params_recovery/' save_name '_G'])
 
 
 figure()
@@ -236,10 +246,10 @@ boxplot_special(class,paramss)
 xtickangle(-45)
 ylabel(param_type)
 xlabel('recovery time (min)')
-% print_png_fig(['results/' save_name '_confluence'])
+print_png_fig(['results_params_recovery/' save_name '_confluence'])
 
 
-
+save(['results_params_recovery/tmp_params' param_type  '.mat'],'class','paramss','Gs')
 
 
 colors  = get(gca,'colororder');
@@ -262,85 +272,9 @@ ylabel(param_type)
 xlabel('G (Pa)')
 xlim([0 150])
 % ylim([0 1000])
-% print_png_fig(['results/' save_name '_G_vs_eta'])
+print_png_fig(['results_params_recovery/' save_name '_G_vs_eta'])
 
 
-
-
-
-
-
-
-
-
-% figure()
-% plot(class,Gs,'*')
-% xtickangle(-45)
-% ylabel('G (Pa)')
-% 
-% hold on
-% % f=fit(class',Gs','poly1','Robust','LAR');
-% f=fit(class',Gs','poly1');
-% class_est = min(class):0.01:max(class);
-% % p = [f.p1,f.p2,f.p3,f.p4];
-% p = [f.p1,f.p2];
-% gammas_est = polyval(p,class_est);
-% plot(class_est,gammas_est)
-% 
-% print_png_fig(['results/' save_name '_G'])
-% 
-% 
-% 
-% figure()
-% plot(class,confluences,'*')
-% xtickangle(-45)
-% ylabel('confluence')
-% 
-% hold on
-% % f=fit(class',confluences','poly1','Robust','LAR');
-% f=fit(class',confluences','poly1');
-% class_est = min(class):0.01:max(class);
-% % p = [f.p1,f.p2,f.p3,f.p4];
-% p = [f.p1,f.p2];
-% gammas_est = polyval(p,class_est);
-% plot(class_est,gammas_est)
-% 
-% print_png_fig(['results/' save_name '_confluence'])
-% 
-% 
-% 
-% figure()
-% plot(class,etas,'*')
-% xtickangle(-45)
-% ylabel('\eta (Pa s)')
-% 
-% hold on
-% % f=fit(class',etas','poly1','Robust','LAR');
-% f=fit(class',etas','poly1');
-% class_est = min(class):0.01:max(class);
-% % p = [f.p1,f.p2,f.p3,f.p4];
-% p = [f.p1,f.p2];
-% gammas_est = polyval(p,class_est);
-% plot(class_est,gammas_est)
-% 
-% print_png_fig(['results/' save_name '_eta'])
-% 
-% 
-% figure()
-% plot(class,slopes,'*')
-% xtickangle(-45)
-% ylabel('Movement (\mu m / s)')
-% 
-% hold on
-% % f=fit(class',slopes','poly1','Robust','LAR');
-% f=fit(class',slopes','poly1');
-% class_est = min(class):0.01:max(class);
-% % p = [f.p1,f.p2,f.p3,f.p4];
-% p = [f.p1,f.p2];
-% gammas_est = polyval(p,class_est);
-% plot(class_est,gammas_est)
-% 
-% print_png_fig(['results/' save_name 'slopes'])
 
 
 
