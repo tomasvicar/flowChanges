@@ -21,7 +21,7 @@ data_folder = 'Z:\999992-nanobiomed\Holograf';
 
 path = [data_folder '\22-02-03 - Shear PC3 konfluence_processed\'];
 info = readtable([path 'info_03_02_22.xlsx']);
-flow_folder = [path 'exp_12_03_21'];
+flow_folder = [path 'exp_03_02_2022'];
 
 
 
