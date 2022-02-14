@@ -14,12 +14,15 @@ import os
 
 # path = r'Z:\999992-nanobiomed\Holograf\21-03-25 - PC3 refractiveindex\PC3_vymenamedia_hs+vypocitane_h\height+RI_vymenamedia'
 
-path = r'Z:\999992-nanobiomed\Holograf\22-01-26 - Shear 22Rv1-vzestup_potreti'
+# path = r'Z:\999992-nanobiomed\Holograf\22-01-26 - Shear 22Rv1-vzestup_potreti'
+
+path = r'Z:\999992-nanobiomed\Holograf\22-02-03 - Shear PC3 konfluence_processed'
+
 
 filenames =  glob(path + os.sep + '*.qdf')
 
 
-for fname in filenames[0:10]:
+for fname in filenames[11:]:
     
     
     save_folder = fname[:-4]
