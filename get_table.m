@@ -1,8 +1,8 @@
 clear all;close all;clc;
 addpath('utils')
 
-
-data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
+data_folder = 'D:\Users\vicar\shear_stress_revize_konf';
+% data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
 % data_folder = 'E:\Sdílené disky\Quantitative GAČR\data\21-03-12 - Shearstress';
 
 paths = {};
@@ -10,9 +10,16 @@ infos = {};
 flow_folders = {};
 
 
-path = [data_folder '\21-03-25 - Shearstress 22Rv1\'];
-info = readtable([path 'info_25_03_21.xlsx']);
-flow_folder = [path 'exp_25_03_21'];
+% path = [data_folder '\21-03-25 - Shearstress 22Rv1\'];
+% info = readtable([path 'info_25_03_21.xlsx']);
+% flow_folder = [path 'exp_25_03_21'];
+
+
+path = [data_folder '\22-02-03 - Shear PC3 konfluence_processed\'];
+info = readtable([path 'info_03_02_22.xlsx']);
+flow_folder = [path 'exp_03_02_2022'];
+
+
 
 
 paths =[paths path];
@@ -32,23 +39,68 @@ info_used = info(:,{'folder','cell','fov','note'});
 
 
 
-path = [data_folder '\21-03-25 - Shearstress 22Rv1\'];
+% path = [data_folder '\21-03-25 - Shearstress 22Rv1\'];
 
-file_name_tmp = ...
-{'01_WP1_21-03-25_Well1_FOV1_22Rv1_untreated_48h_50','22Rv1',1,0.461805555555556,'';...
-'02_WP1_21-03-25_Well1_FOV2_22Rv1_untreated_48h_50','22Rv1',2,0.465277777777778,'';...
-'03_WP1_21-03-25_Well1_FOV3_22Rv1_untreated_48h_50','22Rv1',3,0.469444444444444,'';...
-'04_WP1_21-03-25_Well1_FOV4_22Rv1_untreated_48h_50','22Rv1',4,0.473611111111111,'';...
-'05_WP1_21-03-25_Well3_FOV1_22Rv1_untreated_48h_50','22Rv1',1,0.486805555555556,'well 2 bublina proto rovnou na well3, ale toto nebrat, malo bunek';...
-'06_WP1_21-03-25_Well4_FOV1_22Rv1_untreated_48h_50','22Rv1',1,0.495833333333333,'';...
-'07_WP1_21-03-25_Well4_FOV2_22Rv1_untreated_48h_50','22Rv1',2,0.500000000000000,'';...
-'08_WP1_21-03-25_Well4_FOV3_22Rv1_untreated_48h_50','22Rv1',3,0.503472222222222,'bublina konec';...
-'09_WP1_21-03-25_Well5_FOV1_22Rv1_untreated_48h_50','22Rv1',1,0.518750000000000,'';...
-'10_WP1_21-03-25_Well5_FOV2_22Rv1_untreated_48h_50','22Rv1',2,0.523611111111111,'';...
-'11_WP1_21-03-25_Well5_FOV3_22Rv1_untreated_48h_50','22Rv1',3,0.527083333333333,'';...
-'12_WP1_21-03-25_Well5_FOV4_22Rv1_untreated_48h_50','22Rv1',4,0.531250000000000,'';...
-'13_WP1_21-03-25_Well5_FOV5_22Rv1_untreated_48h_50','22Rv1',5,0.535416666666667,''};
 
+
+file_name_tmp = {...
+    '01_WP1-80_W1_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'cca 15% bunek pri prvnim pulsu to odmylo! redukce konfluence';
+    '02_WP1-80_W1_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'';
+    '03_WP1-80_W1_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '04_WP1-80_W2_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'cca 20% při prvním pulsu se urvalo';
+    '05_WP1-80_W2_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'';
+    '06_WP1-80_W2_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '07_WP1-80_W3_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'kolísající signál, utrhlo se cca 10% bunek';
+    '08_WP1-80_W3_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'v třetí jamce konfluence nižší, prravo to dělá trochu hologram artefakt';
+    '09_WP1-80_W3_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '10_WP2-40_W1_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'spousta kulatých na začátku, většina ulítla, cca 25%';
+    '11_WP2-40_W1_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'';
+    '12_WP2-40_W1_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '13_WP2-40_W2_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'blika horni okraj moc';
+    '14_WP2-40_W2_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'';
+    '15_WP2-40_W2_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '16_WP2-40_W3_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'záznam spuštěn cca 10 sekund po začátku pulzu stříkačky';
+    '17_WP2-40_W3_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'';
+    '18_WP2-40_W3_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '19_WP3-20_W1_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'';
+    '20_WP3-20_W1_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'';
+    '21_WP3-20_W1_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '22_WP3-20_W2_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'';
+    '23_WP3-20_W2_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'';
+    '24_WP3-20_W2_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '25_WP3-20_W3_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'';
+    '26_WP3-20_W3_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'';
+    '27_WP3-20_W3_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '28_WP4-10_W1_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'';
+    '29_WP4-10_W1_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'';
+    '30_WP4-10_W1_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '31_WP4-10_W2_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'';
+    '32_WP4-10_W2_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'';
+    '33_WP4-10_W2_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '34_WP4-10_W3_FOV1_22-02-103 - Shear PC3_konfl','PC-3',1,'';
+    '35_WP4-10_W3_FOV2_22-02-103 - Shear PC3_konfl','PC-3',2,'zasekla se púumpa - abport';
+    '36_WP4-10_W3_FOV3_22-02-103 - Shear PC3_konfl','PC-3',3,'';
+    '37_WP4-10_W3_FOV4_22-02-103 - Shear PC3_konfl','PC-3',4,'';
+    '38_WP4-10_W3_FOV5_22-02-103 - Shear PC3_konfl','PC-3',5,'';
+    '39_WP4-10_W3_FOV6_22-02-103 - Shear PC3_konfl','PC-3',6,''};
+
+
+
+% file_name_tmp = ...
+% {'01_WP1_21-03-25_Well1_FOV1_22Rv1_untreated_48h_50','22Rv1',1,0.461805555555556,'';...
+% '02_WP1_21-03-25_Well1_FOV2_22Rv1_untreated_48h_50','22Rv1',2,0.465277777777778,'';...
+% '03_WP1_21-03-25_Well1_FOV3_22Rv1_untreated_48h_50','22Rv1',3,0.469444444444444,'';...
+% '04_WP1_21-03-25_Well1_FOV4_22Rv1_untreated_48h_50','22Rv1',4,0.473611111111111,'';...
+% '05_WP1_21-03-25_Well3_FOV1_22Rv1_untreated_48h_50','22Rv1',1,0.486805555555556,'well 2 bublina proto rovnou na well3, ale toto nebrat, malo bunek';...
+% '06_WP1_21-03-25_Well4_FOV1_22Rv1_untreated_48h_50','22Rv1',1,0.495833333333333,'';...
+% '07_WP1_21-03-25_Well4_FOV2_22Rv1_untreated_48h_50','22Rv1',2,0.500000000000000,'';...
+% '08_WP1_21-03-25_Well4_FOV3_22Rv1_untreated_48h_50','22Rv1',3,0.503472222222222,'bublina konec';...
+% '09_WP1_21-03-25_Well5_FOV1_22Rv1_untreated_48h_50','22Rv1',1,0.518750000000000,'';...
+% '10_WP1_21-03-25_Well5_FOV2_22Rv1_untreated_48h_50','22Rv1',2,0.523611111111111,'';...
+% '11_WP1_21-03-25_Well5_FOV3_22Rv1_untreated_48h_50','22Rv1',3,0.527083333333333,'';...
+% '12_WP1_21-03-25_Well5_FOV4_22Rv1_untreated_48h_50','22Rv1',4,0.531250000000000,'';...
+% '13_WP1_21-03-25_Well5_FOV5_22Rv1_untreated_48h_50','22Rv1',5,0.535416666666667,''};
+% 
 
 
 
