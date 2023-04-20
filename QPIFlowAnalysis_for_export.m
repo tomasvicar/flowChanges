@@ -77,7 +77,7 @@ for fileNum = 1:10%size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     flowmeterValues = flowmeterData.FlowLinearized;
     
     %% prepare Theoretical Pump Flow
-    pumpFlow = eval(info.flow{fileNum});
+    pumpFlow = eval(info.flow{fileNum})*1000;
     delayFlow = eval(info.delay{fileNum});
     timeFlow = eval(info.time{fileNum});
     
@@ -96,9 +96,9 @@ for fileNum = 1:10%size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %     Iorig = tiffreadVolume(image_file);
     imageSize = size(imread(image_file,1));
     
-    if strcmp(image_file,'Z:\999992-nanobiomed\Holograf\20-11-19 - Shearstress PC3 various dyn time\11_well06_PC3_untreated_48hseed_20spulse_mix100-200dyn\Compensated phase - [0000, 0000].tiff')
-        imageFrameTimes = imageFrameTimes(1:2972);
-    end
+%     if strcmp(image_file,'Z:\999992-nanobiomed\Holograf\20-11-19 - Shearstress PC3 various dyn time\11_well06_PC3_untreated_48hseed_20spulse_mix100-200dyn\Compensated phase - [0000, 0000].tiff')
+%         imageFrameTimes = imageFrameTimes(1:2972);
+%     end
     
     frames = length(imageFrameTimes);
 

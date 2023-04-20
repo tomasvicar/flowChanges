@@ -9,11 +9,11 @@ addpath('utils')
 
 
 
-data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
+data_folder = 'Z:\999992-nanobiomed\Holograf';
 
-path = [data_folder '\21-03-25 - Shearstress 22Rv1\'];
-info = readtable([path 'info_25_03_21.xlsx']);
-flow_folder = [path 'exp_25_03_21'];
+path = [data_folder '\23-04-13 - shearstress zinc res_tmp_matlab\'];
+% info = readtable([path 'info_25_03_21.xlsx']);
+flow_folder = [path 'flow'];
 
 
 
@@ -41,19 +41,31 @@ listVars = whos;
 for ii = 1:numel(listVars)
     opt.(listVars(ii).name) = eval(listVars(ii).name);
 end
+
+filenames = subdir([path '*.tiff']);
+
+
 %% execution
-for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for fileNum = 1:5%length(filenames)
     disp(num2str(fileNum))
     
 %     err = [];
 %     try
-        
-    flowMeter_file = [flow_folder '\flow' num2str(info.experiment(fileNum)) '.csv'];
+
+    tmp_name = filenames(fileNum).name;
+    image_file = tmp_name;
+    [tmp_filepath,tmp_name,tmp_ext] = fileparts(tmp_name);
+    tmp_name = split(tmp_filepath,'\');
+    tmp_name = tmp_name{end};
+
+    flowMeter_file = [flow_folder '\' tmp_name '*.txt'];
+    flowMeter_file = subdir(flowMeter_file);
+    flowMeter_file = flowMeter_file(1).name;
+
     
-    image_file = [path info.folder{fileNum} '\Compensated phase - [0000, 0000].tiff'];
     
-    tmp1 = [path info.folder{fileNum} '\segMotility.Path.csv'];
-    tmp2 = [path info.folder{fileNum} '\time.txt'];
+    tmp1 = [path tmp_name '\segMotility.Path.csv'];
+    tmp2 = [path tmp_name '\time.txt'];
     if isfile(tmp1)
         imageFrameTimes = getImageFrameTimes(tmp1);
     elseif isfile(tmp2)
@@ -62,16 +74,17 @@ for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         error('no time file')
     end
         
+
+    [flowmeterTimes,flowmeterValues,header] = getFlowmeterData(flowMeter_file);
     
-    
-    flowmeterData = getFlowmeterData(flowMeter_file);
-    flowmeterTimes = flowmeterData.RelativeTime;
-    flowmeterValues = flowmeterData.FlowLinearized;
-    
+    delayFlow = header('delays');
+    timeFlow = header('times');
+    pumpFlow = header('rates_ml/min');
+
     %% prepare Theoretical Pump Flow
-    pumpFlow = eval(info.flow{fileNum});
-    delayFlow = eval(info.delay{fileNum});
-    timeFlow = eval(info.time{fileNum});
+    pumpFlow = eval(['[' pumpFlow ']'])*1000;
+    delayFlow = eval(['[' delayFlow ']']);
+    timeFlow = eval(['[' timeFlow ']']);
     
     pumpFlowValues = [];
     pumpFlowTimes = [];
@@ -88,9 +101,9 @@ for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %     Iorig = tiffreadVolume(image_file);
     imageSize = size(imread(image_file,1));
     
-    if strcmp(image_file,'Z:\999992-nanobiomed\Holograf\20-11-19 - Shearstress PC3 various dyn time\11_well06_PC3_untreated_48hseed_20spulse_mix100-200dyn\Compensated phase - [0000, 0000].tiff')
-        imageFrameTimes = imageFrameTimes(1:2972);
-    end
+%     if strcmp(image_file,'Z:\999992-nanobiomed\Holograf\20-11-19 - Shearstress PC3 various dyn time\11_well06_PC3_untreated_48hseed_20spulse_mix100-200dyn\Compensated phase - [0000, 0000].tiff')
+%         imageFrameTimes = imageFrameTimes(1:2972);
+%     end
     
     frames = length(imageFrameTimes);
 
@@ -170,12 +183,11 @@ for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 
     %% Visualization
-    mkdir([path_save info.folder{fileNum}])
+    mkdir([path_save tmp_name])
     
     for cellNum = 1:num_cells
-        description = {['Exp' num2str(info.experiment(fileNum)) ' '...
-        info.cell{fileNum} ' FOV' num2str(info.fov(fileNum))],...
-        replace(info.folder{fileNum},'_',' ')};
+        description = {['Exp' tmp_name(1:2)],...
+        replace(tmp_name,'_',' ')};
 
         figure('Position',figureSize);
         yyaxis left
@@ -194,7 +206,7 @@ for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         legend({'Pump','Flowmeter','Centre Diff.'},'Location','northwest')
         set(gca,'FontSize',12)
         set(gca,'FontWeight','bold')
-        saveas(gcf,[path_save info.folder{fileNum} '\Cell' num2str(cellNum) 'CentreDiff.png'])
+        saveas(gcf,[path_save tmp_name '\Cell' num2str(cellNum) 'CentreDiff.png'])
         close(gcf)
     end
 
@@ -210,7 +222,7 @@ for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     set(gca,'FontSize',12)
     set(gca,'FontWeight','bold')
     legend(L,'Location','best')
-    saveas(gcf,[path_save info.folder{fileNum} '\All_Cells_CentreDiff.png'])
+    saveas(gcf,[path_save tmp_name '\All_Cells_CentreDiff.png'])
     close(gcf)
 
     %% Export video of Cell BB
@@ -232,7 +244,7 @@ for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         posWC = [cell_WC{cellNum}(:,1)-ceil(BB.BoundingBox(cellNum,1)),...
             cell_WC{cellNum}(:,2)-ceil(BB.BoundingBox(cellNum,2))];
 
-        v = VideoWriter([path_save info.folder{fileNum} '\Cell' num2str(cellNum) 'BBVideo.avi'],'MPEG-4');
+        v = VideoWriter([path_save tmp_name '\Cell' num2str(cellNum) 'BBVideo.avi'],'MPEG-4');
         v.FrameRate = videoFrameRate;
         v.Quality = 100;
         open(v)
@@ -244,7 +256,7 @@ for fileNum = 1:size(info,1)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         close(v)
     end
     
-    save([path_save info.folder{fileNum} '\'...
+    save([path_save tmp_name '\'...
         'results.mat'],...
         'cellStats','cell_WC','cell_WCdiff','cell_Height',...
         'flowmeterTimes','flowmeterValues','pumpFlowValues',...
