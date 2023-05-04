@@ -2,7 +2,8 @@ clear all;close all;clc;
 addpath('utils')
 
 
-data_folder = 'Z:\999992-nanobiomed\Holograf\21-03-12 - Shearstress';
+
+data_folder = 'Z:\999992-nanobiomed\Holograf';
 
 
 paths = {};
@@ -11,17 +12,17 @@ flow_folders = {};
 
 
 
-path = [data_folder '\21-03-12 - Shearstress PC3 PC3doc PC3CytD\'];
-info = readtable([path 'info_12_03_21.xlsx']);
-flow_folder = [path 'exp_12_03_21'];
+path = [data_folder '\23-04-13 - shearstress zinc res_tmp_matlab\'];
+% info = readtable([path 'info_25_03_21.xlsx']);
+flow_folder = [path 'flow'];
 
 
 paths =[paths path];
-infos = [infos {info}];
+% infos = [infos {info}];
 flow_folders = [flow_folders flow_folder];
 
 
-
+filenames = subdir([path '*.tiff']);
 
 
 start = 30;
@@ -40,7 +41,7 @@ optShear.T_period = T_period;
 for main_folder_num = 1:length(paths)
     
     path =paths{main_folder_num};
-    info = infos{main_folder_num};
+%     info = infos{main_folder_num};
     flow_folder = flow_folders{main_folder_num} ;
     
     
@@ -58,12 +59,18 @@ for main_folder_num = 1:length(paths)
     end
     
     
-    for fileNum = 22%:height(opt.info)
+    for fileNum = 5:length(filenames)
         
         disp(num2str(fileNum))
         
+
+        tmp_name = filenames(fileNum).name;
+        image_file = tmp_name;
+        [tmp_filepath,tmp_name,tmp_ext] = fileparts(tmp_name);
+        tmp_name = split(tmp_filepath,'\');
+        tmp_name = tmp_name{end};
         
-        data = load([path_save '/' info.folder{fileNum} '\results.mat']);
+        data = load([path_save '/' tmp_name '\results.mat']);
         flowmeterValues = data.flowmeterValues;
         flowmeterTimes = data.flowmeterTimes;
         cell_WCdiff = data.cell_WCdiff;
@@ -72,9 +79,10 @@ for main_folder_num = 1:length(paths)
         pumpFlowTimes = data.pumpFlowTimes;
         pumpFlowValues = data.pumpFlowValues;
         
-        if fileNum==22%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            flowmeterTimes(flowmeterTimes<0) = 299.2495 + 9.8554 + flowmeterTimes(flowmeterTimes<0) +0.005;
-        end
+%         if fileNum==22%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%             flowmeterTimes(flowmeterTimes<0) = 299.2495 + 9.8554 + flowmeterTimes(flowmeterTimes<0) +0.005;
+%         end
+
         T_flow = mean(abs(diff(flowmeterTimes)));
         
         flowmeterValues = medfilt1(flowmeterValues,odd(medSize/T_flow));
@@ -216,7 +224,7 @@ for main_folder_num = 1:length(paths)
                 plot(0:T_period:(length(tmp)-1)*T_period,tmp)
                 plot(0:T_period:(length(tmp)-1)*T_period,polyval(coeffvalues(fit(ttt,(gamma - conv(crop_sig(custom_shift(tau,b(3)),use),h(b,tt_h), 'valid' )*T_period),['poly' num2str(order)],'Robust','LAR')),ttt))
                 drawnow;
-                saveas(gcf,[path_save '/'  info.folder{fileNum} '/Cell' num2str(cellNum) '_fit.png'])
+                saveas(gcf,[path_save '/'  tmp_name '/Cell' num2str(cellNum) '_fit.png'])
                 close(gcf)
 
 
@@ -235,13 +243,13 @@ for main_folder_num = 1:length(paths)
                 title(['Cell' num2str(cellNum) '   '  num2str(G) '   ' num2str(eta)])
                 drawnow;
 
-                saveas(gcf,[path_save '/'  info.folder{fileNum} '/Cell' num2str(cellNum) '_fit2.png'])
+                saveas(gcf,[path_save '/'  tmp_name '/Cell' num2str(cellNum) '_fit2.png'])
 
                 close(gcf)
             catch EM
                disp('error')
                use_vector(cellNum) = 0;
-               save([path_save '/'  info.folder{fileNum} '/Cell' num2str(cellNum) 'error.mat'])
+               save([path_save '/'  tmp_name '/Cell' num2str(cellNum) 'error.mat'])
                 
             end
             drawnow;
@@ -260,16 +268,16 @@ for main_folder_num = 1:length(paths)
             T = array2table(to_table,'VariableNames',variable_names,'RowNames',{'use','num_cells'});
         end
         
-        writetable(T,[path_save '/' info.folder{fileNum} '/table_what_use.xlsx'],'WriteRowNames',true)
+        writetable(T,[path_save '/' tmp_name '/table_what_use.xlsx'],'WriteRowNames',true)
         
         gamma_signals_orig{cellNum} = gamma_signal_tmp;
                 tau_signals_orig{cellNum}  = tau_signal_all;
                 times_orig{cellNum} = time_all;
         
-        save([ path_save '/' info.folder{fileNum} '/signals.mat'],'gamma_signals','tau_signals','times','polynoms',...
+        save([ path_save '/' tmp_name '/signals.mat'],'gamma_signals','tau_signals','times','polynoms',...
             'gamma_signals_orig','tau_signals_orig','times_orig')
         
-        save([ path_save '/' info.folder{fileNum} '/fit_params.mat'],'hs','Gs','etas','optShear')
+        save([ path_save '/' tmp_name '/fit_params.mat'],'hs','Gs','etas','optShear')
         
         
         

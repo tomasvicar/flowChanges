@@ -46,7 +46,7 @@ filenames = subdir([path '*.tiff']);
 
 
 %% execution
-for fileNum = 1:5%length(filenames)
+for fileNum = 5:length(filenames)
     disp(num2str(fileNum))
     
 %     err = [];

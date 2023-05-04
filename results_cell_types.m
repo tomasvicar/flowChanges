@@ -3,14 +3,14 @@ addpath('utils');addpath('utils/plotSpread')
 
 threshold = 0.2;
 
-data_folder = 'G:\Sdílené disky\Quantitative GAČR\data\21-03-12 - Shearstress';
+data_folder = 'Z:\999992-nanobiomed\Holograf';
 
 file_names_qpi_image ={};
 
 file_names = {};
 
 
-path = [data_folder '\21-03-12 - Shearstress PC3 PC3doc PC3CytD\'];
+path = [data_folder '\23-04-13 - shearstress zinc res_tmp_matlab\'];
 file_names_tmp ={...
     '01_WP1_21-03-12_Well1_FOV1_PC-3_ unt_48h_50only_30s','PC-3',1,'PC3 cislo pasaze 23 (vsechny bunky dneska)'
     '02_WP1_21-03-12_Well1_FOV2_PC-3_ unt_48h_50only_30s','PC-3',2,''
